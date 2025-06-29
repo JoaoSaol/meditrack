@@ -1,0 +1,31 @@
+# COMANDOS RÁPIDOS DE TESTE - MediTrack
+
+## TESTES BÁSICOS
+./gradlew testDebugUnitTest          # Testes unitários (rápido)
+./gradlew test                       # Todos os testes unitários
+./gradlew connectedAndroidTest       # Testes UI (precisa emulador)
+
+## VERIFICAÇÕES
+adb devices                          # Ver dispositivos conectados
+./gradlew assembleDebug             # Build do app
+
+## TESTES ESPECÍFICOS
+./gradlew testDebugUnitTest --tests "*MedicationTest*"
+./gradlew testDebugUnitTest --info  # Com detalhes
+
+## MANUTENÇÃO
+./gradlew clean                      # Limpar build
+./gradlew clean test                 # Limpar e testar
+./gradlew --stop                     # Parar daemon
+
+## EMULADOR
+emulator -list-avds                  # Listar emuladores
+emulator -avd NOME_AVD              # Iniciar emulador
+
+## RELATÓRIOS
+# HTML: app/build/reports/tests/testDebugUnitTest/index.html
+# XML:  app/build/test-results/testDebugUnitTest/
+
+## TROUBLESHOOTING
+adb kill-server && adb start-server # Reiniciar ADB
+./gradlew build --refresh-dependencies
