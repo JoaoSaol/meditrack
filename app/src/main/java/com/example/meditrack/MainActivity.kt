@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.meditrack.ui.screens.AddEditMedicationScreen
+import com.example.meditrack.ui.screens.BulkAddMedicationScreen
 import com.example.meditrack.ui.screens.MedicationDetailScreen
 import com.example.meditrack.ui.screens.MedicationListScreen
 import com.example.meditrack.ui.theme.MediTrackTheme
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
                         composable("medicationList") {
                             MedicationListScreen(
                                 onAddMedicationClick = { navController.navigate("addEditMedication/0") },
+                                onBulkAddMedicationClick = { navController.navigate("bulkAddMedication") },
                                 onMedicationClick = { medicationId -> navController.navigate("medicationDetail/$medicationId") }
                             )
                         }
@@ -41,6 +43,11 @@ class MainActivity : ComponentActivity() {
                         ) {
                             val medicationId = it.arguments?.getInt("medicationId")
                             AddEditMedicationScreen(medicationId = medicationId) {
+                                navController.popBackStack()
+                            }
+                        }
+                        composable("bulkAddMedication") {
+                            BulkAddMedicationScreen {
                                 navController.popBackStack()
                             }
                         }

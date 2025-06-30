@@ -6,12 +6,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,7 +27,11 @@ import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicationListScreen(onAddMedicationClick: () -> Unit, onMedicationClick: (Int) -> Unit) {
+fun MedicationListScreen(
+    onAddMedicationClick: () -> Unit, 
+    onBulkAddMedicationClick: () -> Unit,
+    onMedicationClick: (Int) -> Unit
+) {
     val context = LocalContext.current
     val appContainer = (context.applicationContext as MediTrackApplication).container
     val medicationViewModel: MedicationViewModel = viewModel(factory = MedicationViewModel.MedicationViewModelFactory(appContainer.medicationRepository))
@@ -79,8 +81,34 @@ fun MedicationListScreen(onAddMedicationClick: () -> Unit, onMedicationClick: (I
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddMedicationClick) {
-                Icon(Icons.Filled.Add, "Adicionar Medicamento")
+            var expanded by remember { mutableStateOf(false) }
+            
+            Box {
+                FloatingActionButton(
+                    onClick = { expanded = true }
+                ) {
+                    Icon(Icons.Filled.Add, "Adicionar Medicamento")
+                }
+                
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Adicionar 1 Medicamento") },
+                        onClick = {
+                            expanded = false
+                            onAddMedicationClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Adicionar Múltiplos") },
+                        onClick = {
+                            expanded = false
+                            onBulkAddMedicationClick()
+                        }
+                    )
+                }
             }
         }
     ) { paddingValues ->

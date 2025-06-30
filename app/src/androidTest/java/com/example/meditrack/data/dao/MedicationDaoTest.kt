@@ -66,7 +66,11 @@ class MedicationDaoTest {
         medicationDao.insert(medication1)
         medicationDao.insert(medication2)
 
-        val retrievedMedication = medicationDao.getById(medication1.id)
+        // Get all medications to get the actual IDs assigned by Room
+        val allMedications = medicationDao.getAll().first()
+        val aspirinaId = allMedications.find { it.name == "Aspirina" }?.id
+        
+        val retrievedMedication = medicationDao.getById(aspirinaId!!)
         assertEquals("Aspirina", retrievedMedication?.name)
     }
 }
