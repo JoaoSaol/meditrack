@@ -63,76 +63,91 @@ fun BulkAddMedicationScreen(onSaveClick: () -> Unit) {
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                itemsIndexed(medications) { index, medication ->
-                    MedicationFormCard(
-                        medication = medication,
-                        onMedicationChange = { updatedMedication ->
-                            medications = medications.toMutableList().apply {
-                                this[index] = updatedMedication
-                            }
-                        },
-                        onDelete = if (medications.size > 1) {
-                            {
-                                medications = medications.toMutableList().apply {
-                                    removeAt(index)
-                                }
-                            }
-                        } else null,
-                        medicationNumber = index + 1
-                    )
+        BulkAddMedicationContent(
+            medications = medications,
+            isSaving = isSaving,
+            onMedicationsChange = { medications = it },
+            onCancel = onSaveClick,
+            onSaveAll = { validMedications ->
+                isSaving = true
+                validMedications.forEach { medicationForm ->
+                    val medication = medicationForm.toMedication()
+                    medicationViewModel.insertMedication(medication)
+                    notificationScheduler.scheduleNotification(medication)
                 }
+                onSaveClick()
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onSaveClick,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Cancelar")
-                }
-                
-                Button(
-                    onClick = {
-                        val validMedications = medications.filter { it.isValid() }
-                        if (validMedications.isNotEmpty()) {
-                            isSaving = true
-                            validMedications.forEach { medicationForm ->
-                                val medication = medicationForm.toMedication()
-                                medicationViewModel.insertMedication(medication)
-                                notificationScheduler.scheduleNotification(medication)
-                            }
-                            onSaveClick()
-                        }
+        )
+    }
+}
+
+@Composable
+private fun BulkAddMedicationContent(
+    medications: List<MedicationForm>,
+    isSaving: Boolean,
+    onMedicationsChange: (List<MedicationForm>) -> Unit,
+    onCancel: () -> Unit,
+    onSaveAll: (List<MedicationForm>) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(WindowInsets.systemBars.asPaddingValues())
+            .fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            itemsIndexed(medications) { index, medication ->
+                MedicationFormCard(
+                    medication = medication,
+                    onMedicationChange = { updatedMedication ->
+                        onMedicationsChange(medications.toMutableList().apply {
+                            this[index] = updatedMedication
+                        })
                     },
-                    enabled = !isSaving && medications.any { it.isValid() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    if (isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Salvar Todos")
-                    }
+                    onDelete = if (medications.size > 1) {
+                        {
+                            onMedicationsChange(medications.toMutableList().apply {
+                                removeAt(index)
+                            })
+                        }
+                    } else null,
+                    medicationNumber = index + 1
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Cancelar")
+            }
+
+            val validMedications = medications.filter { it.isValid() }
+            Button(
+                onClick = { onSaveAll(validMedications) },
+                enabled = !isSaving && validMedications.isNotEmpty(),
+                modifier = Modifier.weight(1f)
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Salvar Todos")
                 }
             }
         }
