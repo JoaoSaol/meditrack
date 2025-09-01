@@ -42,7 +42,7 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) :
         }
 
         val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO: Replace with a proper icon
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Hora do seu medicamento!")
             .setContentText("É hora de tomar $medicationName ($medicationDosage).")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
