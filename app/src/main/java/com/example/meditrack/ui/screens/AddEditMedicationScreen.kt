@@ -17,6 +17,13 @@ import com.example.meditrack.MediTrackApplication
 import androidx.compose.ui.platform.LocalContext
 import com.example.meditrack.util.NotificationScheduler
 
+data class MedicationFormState(
+    val name: String = "",
+    val dosage: String = "",
+    val frequency: String = "",
+    val schedule: String = ""
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditMedicationScreen(medicationId: Int?, onSaveClick: () -> Unit) {
@@ -25,18 +32,17 @@ fun AddEditMedicationScreen(medicationId: Int?, onSaveClick: () -> Unit) {
     val medicationViewModel: MedicationViewModel = viewModel(factory = MedicationViewModel.MedicationViewModelFactory(appContainer.medicationRepository))
     val notificationScheduler = remember { NotificationScheduler(context) }
 
-    var name by remember { mutableStateOf("") }
-    var dosage by remember { mutableStateOf("") }
-    var frequency by remember { mutableStateOf("") }
-    var schedule by remember { mutableStateOf("") }
+    var formState by remember { mutableStateOf(MedicationFormState()) }
 
     // Extracted logic for loading medication
     LaunchedEffect(medicationId) {
         loadMedicationIfNeeded(medicationId, medicationViewModel) { med ->
-            name = med.name
-            dosage = med.dosage
-            frequency = med.frequency
-            schedule = med.schedule
+            formState = MedicationFormState(
+                name = med.name,
+                dosage = med.dosage,
+                frequency = med.frequency,
+                schedule = med.schedule
+            )
         }
     }
 
@@ -46,21 +52,12 @@ fun AddEditMedicationScreen(medicationId: Int?, onSaveClick: () -> Unit) {
         }
     ) { paddingValues ->
         MedicationForm(
-            name = name,
-            onNameChange = { name = it },
-            dosage = dosage,
-            onDosageChange = { dosage = it },
-            frequency = frequency,
-            onFrequencyChange = { frequency = it },
-            schedule = schedule,
-            onScheduleChange = { schedule = it },
+            formState = formState,
+            onFormChange = { formState = it },
             onSaveClick = {
                 handleSaveClick(
                     medicationId,
-                    name,
-                    dosage,
-                    frequency,
-                    schedule,
+                    formState,
                     medicationViewModel,
                     notificationScheduler,
                     onSaveClick
@@ -76,42 +73,36 @@ fun AddEditMedicationScreen(medicationId: Int?, onSaveClick: () -> Unit) {
 
 @Composable
 private fun MedicationForm(
-    name: String,
-    onNameChange: (String) -> Unit,
-    dosage: String,
-    onDosageChange: (String) -> Unit,
-    frequency: String,
-    onFrequencyChange: (String) -> Unit,
-    schedule: String,
-    onScheduleChange: (String) -> Unit,
+    formState: MedicationFormState,
+    onFormChange: (MedicationFormState) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         OutlinedTextField(
-            value = name,
-            onValueChange = onNameChange,
+            value = formState.name,
+            onValueChange = { onFormChange(formState.copy(name = it)) },
             label = { Text("Nome do Medicamento") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = dosage,
-            onValueChange = onDosageChange,
+            value = formState.dosage,
+            onValueChange = { onFormChange(formState.copy(dosage = it)) },
             label = { Text("Dosagem") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = frequency,
-            onValueChange = onFrequencyChange,
+            value = formState.frequency,
+            onValueChange = { onFormChange(formState.copy(frequency = it)) },
             label = { Text("Frequência") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = schedule,
-            onValueChange = onScheduleChange,
+            value = formState.schedule,
+            onValueChange = { onFormChange(formState.copy(schedule = it)) },
             label = { Text("Horário (ex: 8h, 14h, 20h)") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -142,20 +133,17 @@ private suspend fun loadMedicationIfNeeded(
 
 private fun handleSaveClick(
     medicationId: Int?,
-    name: String,
-    dosage: String,
-    frequency: String,
-    schedule: String,
+    formState: MedicationFormState,
     medicationViewModel: MedicationViewModel,
     notificationScheduler: NotificationScheduler,
     onSaveClick: () -> Unit
 ) {
     val medication = Medication(
         id = medicationId ?: 0,
-        name = name,
-        dosage = dosage,
-        frequency = frequency,
-        schedule = schedule
+        name = formState.name,
+        dosage = formState.dosage,
+        frequency = formState.frequency,
+        schedule = formState.schedule
     )
     if (medication.isValid()) {
         if (medicationId == null || medicationId == 0) {
