@@ -1,6 +1,5 @@
 package com.example.meditrack.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,9 +9,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.meditrack.data.model.Medication
 import com.example.meditrack.ui.viewmodel.MedicationViewModel
 import com.example.meditrack.MediTrackApplication
 import androidx.compose.ui.platform.LocalContext
