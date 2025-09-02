@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,43 +37,49 @@ fun MedicationListScreen(
     val medications by medicationViewModel.allMedications.collectAsState(initial = emptyList())
     val pdfGenerator = remember { PdfGenerator(context) }
 
+    val handlePdfGeneration: () -> Unit = {
+        val file = pdfGenerator.generateMedicationHistoryPdf(medications)
+        if (file != null) {
+            Toast.makeText(context, "PDF gerado em: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(context, "Erro ao gerar PDF.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val handlePermissionDenied: () -> Unit = {
+        Toast.makeText(context, "Permissão de escrita negada. Não é possível gerar o PDF.", Toast.LENGTH_SHORT).show()
+    }
+
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            val file = pdfGenerator.generateMedicationHistoryPdf(medications)
-            if (file != null) {
-                Toast.makeText(context, "PDF gerado em: ${file.absolutePath}", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(context, "Erro ao gerar PDF.", Toast.LENGTH_SHORT).show()
-            }
+            handlePdfGeneration()
         } else {
-            Toast.makeText(context, "Permissão de escrita negada. Não é possível gerar o PDF.", Toast.LENGTH_SHORT).show()
+            handlePermissionDenied()
+        }
+    }
+
+    fun exportPdfWithPermissionCheck() {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                handlePdfGeneration()
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Meus Medicamentos") },
+            TopAppBar(
+                title = { Text("Meus Medicamentos") },
                 actions = {
-                    IconButton(onClick = {
-                        when {
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            ) == PackageManager.PERMISSION_GRANTED -> {
-                                val file = pdfGenerator.generateMedicationHistoryPdf(medications)
-                                if (file != null) {
-                                    Toast.makeText(context, "PDF gerado em: ${file.absolutePath}", Toast.LENGTH_LONG).show()
-                                } else {
-                                    Toast.makeText(context, "Erro ao gerar PDF.", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            else -> {
-                                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            }
-                        }
-                    }) {
+                    IconButton(onClick = { exportPdfWithPermissionCheck() }) {
                         Icon(Icons.Filled.Share, "Exportar Histórico")
                     }
                 }
@@ -82,14 +87,12 @@ fun MedicationListScreen(
         },
         floatingActionButton = {
             var expanded by remember { mutableStateOf(false) }
-            
             Box {
                 FloatingActionButton(
                     onClick = { expanded = true }
                 ) {
                     Icon(Icons.Filled.Add, "Adicionar Medicamento")
                 }
-                
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
@@ -113,33 +116,15 @@ fun MedicationListScreen(
         }
     ) { paddingValues ->
         LazyColumn(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-            items(medications) {
-                medication ->
+            items(medications) { medication ->
                 MedicationItem(medication = medication, onMedicationClick = onMedicationClick)
             }
         }
         if (medications.isEmpty()) {
-            Text("Nenhum medicamento cadastrado. Clique no + para adicionar.", modifier = Modifier.fillMaxSize().wrapContentSize())
+            Text(
+                "Nenhum medicamento cadastrado. Clique no + para adicionar.",
+                modifier = Modifier.fillMaxSize().wrapContentSize()
+            )
         }
     }
 }
-
-@Composable
-fun MedicationItem(medication: Medication, onMedicationClick: (Int) -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onMedicationClick(medication.id) }
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = medication.name, style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Dosagem: ${medication.dosage}")
-            Text(text = "Frequência: ${medication.frequency}")
-            Text(text = "Horário: ${medication.schedule}")
-            Text(text = "Status: ${medication.status}")
-        }
-    }
-}
-

@@ -62,7 +62,7 @@ fun BulkAddMedicationScreen(onSaveClick: () -> Unit) {
                 Icon(Icons.Filled.Add, "Adicionar medicamento")
             }
         }
-    ) { paddingValues ->
+    ) { _ ->
         BulkAddMedicationContent(
             medications = medications,
             isSaving = isSaving,
@@ -169,97 +169,103 @@ fun MedicationFormCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Medicamento $medicationNumber",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                
-                if (onDelete != null) {
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            Icons.Filled.Delete,
-                            contentDescription = "Remover medicamento",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-            }
-            
+            MedicationFormHeader(medicationNumber, onDelete)
             Spacer(modifier = Modifier.height(8.dp))
-            
-            OutlinedTextField(
-                value = medication.name,
-                onValueChange = { 
-                    onMedicationChange(medication.copy(name = it))
-                },
-                label = { Text("Nome do Medicamento") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = false
-            )
-            
+            MedicationFormFields(medication, onMedicationChange)
             Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedTextField(
-                    value = medication.dosage,
-                    onValueChange = { 
-                        onMedicationChange(medication.copy(dosage = it))
-                    },
-                    label = { Text("Dosagem") },
-                    modifier = Modifier.weight(1f)
+            MedicationValidationIndicator(medication)
+        }
+    }
+}
+
+@Composable
+private fun MedicationFormHeader(
+    medicationNumber: Int,
+    onDelete: (() -> Unit)?
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Medicamento $medicationNumber",
+            style = MaterialTheme.typography.titleMedium
+        )
+        onDelete?.let {
+            IconButton(onClick = it) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Remover medicamento",
+                    tint = MaterialTheme.colorScheme.error
                 )
-                
-                OutlinedTextField(
-                    value = medication.frequency,
-                    onValueChange = { 
-                        onMedicationChange(medication.copy(frequency = it))
-                    },
-                    label = { Text("Frequência") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            OutlinedTextField(
-                value = medication.schedule,
-                onValueChange = { 
-                    onMedicationChange(medication.copy(schedule = it))
-                },
-                label = { Text("Horário (ex: 8h, 14h, 20h)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            // Indicador visual de validação
-            if (medication.name.isNotBlank() || medication.dosage.isNotBlank() || 
-                medication.frequency.isNotBlank() || medication.schedule.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val isValid = medication.isValid()
-                    Icon(
-                        imageVector = if (isValid) Icons.Filled.Add else Icons.Filled.Delete,
-                        contentDescription = if (isValid) "Válido" else "Inválido",
-                        tint = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (isValid) "Medicamento válido" else "Preencha todos os campos",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                    )
-                }
             }
         }
     }
+}
+
+@Composable
+private fun MedicationFormFields(
+    medication: MedicationForm,
+    onMedicationChange: (MedicationForm) -> Unit
+) {
+    OutlinedTextField(
+        value = medication.name,
+        onValueChange = { onMedicationChange(medication.copy(name = it)) },
+        label = { Text("Nome do Medicamento") },
+        modifier = Modifier.fillMaxWidth(),
+        isError = false
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedTextField(
+            value = medication.dosage,
+            onValueChange = { onMedicationChange(medication.copy(dosage = it)) },
+            label = { Text("Dosagem") },
+            modifier = Modifier.weight(1f)
+        )
+        OutlinedTextField(
+            value = medication.frequency,
+            onValueChange = { onMedicationChange(medication.copy(frequency = it)) },
+            label = { Text("Frequência") },
+            modifier = Modifier.weight(1f)
+        )
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = medication.schedule,
+        onValueChange = { onMedicationChange(medication.copy(schedule = it)) },
+        label = { Text("Horário (ex: 8h, 14h, 20h)") },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun MedicationValidationIndicator(medication: MedicationForm) {
+    if (medication.name.isNotBlank() || medication.dosage.isNotBlank() ||
+        medication.frequency.isNotBlank() || medication.schedule.isNotBlank()
+    ) {
+        Spacer(modifier = Modifier.height(8.dp))
+        val isValid = medication.isValid()
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (isValid) Icons.Filled.Add else Icons.Filled.Delete,
+                contentDescription = if (isValid) "Válido" else "Inválido",
+                tint = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = if (isValid) "Medicamento válido" else "Preencha todos os campos",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
 }
