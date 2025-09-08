@@ -17,6 +17,13 @@ import com.example.meditrack.MediTrackApplication
 import androidx.compose.ui.platform.LocalContext
 import com.example.meditrack.util.NotificationScheduler
 
+data class MedicationFormState(
+    val name: String = "",
+    val dosage: String = "",
+    val frequency: String = "",
+    val schedule: String = ""
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditMedicationScreen(medicationId: Int?, onSaveClick: () -> Unit) {
@@ -25,89 +32,129 @@ fun AddEditMedicationScreen(medicationId: Int?, onSaveClick: () -> Unit) {
     val medicationViewModel: MedicationViewModel = viewModel(factory = MedicationViewModel.MedicationViewModelFactory(appContainer.medicationRepository))
     val notificationScheduler = remember { NotificationScheduler(context) }
 
-    var name by remember { mutableStateOf("") }
-    var dosage by remember { mutableStateOf("") }
-    var frequency by remember { mutableStateOf("") }
-    var schedule by remember { mutableStateOf("") }
+    var formState by remember { mutableStateOf(MedicationFormState()) }
 
+    // Extracted logic for loading medication
     LaunchedEffect(medicationId) {
-        if (medicationId != null && medicationId != 0) {
-            medicationViewModel.getMedicationById(medicationId).collect { medication ->
-                medication?.let {
-                    name = it.name
-                    dosage = it.dosage
-                    frequency = it.frequency
-                    schedule = it.schedule
-                }
-            }
+        loadMedicationIfNeeded(medicationId, medicationViewModel) { med ->
+            formState = MedicationFormState(
+                name = med.name,
+                dosage = med.dosage,
+                frequency = med.frequency,
+                schedule = med.schedule
+            )
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(if (medicationId == null || medicationId == 0) "Adicionar Medicamento" else "Editar Medicamento") })
+            TopAppBar(title = { Text(getScreenTitle(medicationId)) })
         }
     ) { paddingValues ->
-        Column(
+        MedicationForm(
+            formState = formState,
+            onFormChange = { formState = it },
+            onSaveClick = {
+                handleSaveClick(
+                    medicationId,
+                    formState,
+                    medicationViewModel,
+                    notificationScheduler,
+                    onSaveClick
+                )
+            },
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
                 .fillMaxSize()
+        )
+    }
+}
+
+@Composable
+private fun MedicationForm(
+    formState: MedicationFormState,
+    onFormChange: (MedicationFormState) -> Unit,
+    onSaveClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = formState.name,
+            onValueChange = { onFormChange(formState.copy(name = it)) },
+            label = { Text("Nome do Medicamento") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = formState.dosage,
+            onValueChange = { onFormChange(formState.copy(dosage = it)) },
+            label = { Text("Dosagem") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = formState.frequency,
+            onValueChange = { onFormChange(formState.copy(frequency = it)) },
+            label = { Text("Frequência") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = formState.schedule,
+            onValueChange = { onFormChange(formState.copy(schedule = it)) },
+            label = { Text("Horário (ex: 8h, 14h, 20h)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onSaveClick,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nome do Medicamento") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = dosage,
-                onValueChange = { dosage = it },
-                label = { Text("Dosagem") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = frequency,
-                onValueChange = { frequency = it },
-                label = { Text("Frequência") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = schedule,
-                onValueChange = { schedule = it },
-                label = { Text("Horário (ex: 8h, 14h, 20h)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    val medication = Medication(
-                        id = medicationId ?: 0,
-                        name = name,
-                        dosage = dosage,
-                        frequency = frequency,
-                        schedule = schedule
-                    )
-                    if (medication.isValid()) {
-                        if (medicationId == null || medicationId == 0) {
-                            medicationViewModel.insertMedication(medication)
-                        } else {
-                            medicationViewModel.updateMedication(medication)
-                        }
-                        notificationScheduler.scheduleNotification(medication)
-                        onSaveClick()
-                    } else {
-                        // TODO: Show error message to user
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Salvar")
-            }
+            Text("Salvar")
         }
     }
 }
 
+private fun getScreenTitle(medicationId: Int?) =
+    if (medicationId == null || medicationId == 0) "Adicionar Medicamento" else "Editar Medicamento"
+
+private suspend fun loadMedicationIfNeeded(
+    medicationId: Int?,
+    medicationViewModel: MedicationViewModel,
+    onLoaded: (Medication) -> Unit
+) {
+    if (medicationId != null && medicationId != 0) {
+        medicationViewModel.getMedicationById(medicationId).collect { medication ->
+            medication?.let { onLoaded(it) }
+        }
+    }
+}
+
+private fun handleSaveClick(
+    medicationId: Int?,
+    formState: MedicationFormState,
+    medicationViewModel: MedicationViewModel,
+    notificationScheduler: NotificationScheduler,
+    onSaveClick: () -> Unit
+) {
+    val medication = Medication(
+        id = medicationId ?: 0,
+        name = formState.name,
+        dosage = formState.dosage,
+        frequency = formState.frequency,
+        schedule = formState.schedule
+    )
+    if (medication.isValid()) {
+        if (medicationId == null || medicationId == 0) {
+            medicationViewModel.insertMedication(medication)
+        } else {
+            medicationViewModel.updateMedication(medication)
+        }
+        notificationScheduler.scheduleNotification(medication)
+        onSaveClick()
+    } else {
+        val context = notificationScheduler.context
+        android.widget.Toast.makeText(context, "Por favor, preencha todos os campos corretamente.", android.widget.Toast.LENGTH_SHORT).show()
+    }
+}

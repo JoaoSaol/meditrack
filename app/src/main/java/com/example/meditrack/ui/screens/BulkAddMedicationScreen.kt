@@ -62,77 +62,92 @@ fun BulkAddMedicationScreen(onSaveClick: () -> Unit) {
                 Icon(Icons.Filled.Add, "Adicionar medicamento")
             }
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                itemsIndexed(medications) { index, medication ->
-                    MedicationFormCard(
-                        medication = medication,
-                        onMedicationChange = { updatedMedication ->
-                            medications = medications.toMutableList().apply {
-                                this[index] = updatedMedication
-                            }
-                        },
-                        onDelete = if (medications.size > 1) {
-                            {
-                                medications = medications.toMutableList().apply {
-                                    removeAt(index)
-                                }
-                            }
-                        } else null,
-                        medicationNumber = index + 1
-                    )
+    ) { _ ->
+        BulkAddMedicationContent(
+            medications = medications,
+            isSaving = isSaving,
+            onMedicationsChange = { medications = it },
+            onCancel = onSaveClick,
+            onSaveAll = { validMedications ->
+                isSaving = true
+                validMedications.forEach { medicationForm ->
+                    val medication = medicationForm.toMedication()
+                    medicationViewModel.insertMedication(medication)
+                    notificationScheduler.scheduleNotification(medication)
                 }
+                onSaveClick()
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onSaveClick,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Cancelar")
-                }
-                
-                Button(
-                    onClick = {
-                        val validMedications = medications.filter { it.isValid() }
-                        if (validMedications.isNotEmpty()) {
-                            isSaving = true
-                            validMedications.forEach { medicationForm ->
-                                val medication = medicationForm.toMedication()
-                                medicationViewModel.insertMedication(medication)
-                                notificationScheduler.scheduleNotification(medication)
-                            }
-                            onSaveClick()
-                        }
+        )
+    }
+}
+
+@Composable
+private fun BulkAddMedicationContent(
+    medications: List<MedicationForm>,
+    isSaving: Boolean,
+    onMedicationsChange: (List<MedicationForm>) -> Unit,
+    onCancel: () -> Unit,
+    onSaveAll: (List<MedicationForm>) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(WindowInsets.systemBars.asPaddingValues())
+            .fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            itemsIndexed(medications) { index, medication ->
+                MedicationFormCard(
+                    medication = medication,
+                    onMedicationChange = { updatedMedication ->
+                        onMedicationsChange(medications.toMutableList().apply {
+                            this[index] = updatedMedication
+                        })
                     },
-                    enabled = !isSaving && medications.any { it.isValid() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    if (isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Salvar Todos")
-                    }
+                    onDelete = if (medications.size > 1) {
+                        {
+                            onMedicationsChange(medications.toMutableList().apply {
+                                removeAt(index)
+                            })
+                        }
+                    } else null,
+                    medicationNumber = index + 1
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Cancelar")
+            }
+
+            val validMedications = medications.filter { it.isValid() }
+            Button(
+                onClick = { onSaveAll(validMedications) },
+                enabled = !isSaving && validMedications.isNotEmpty(),
+                modifier = Modifier.weight(1f)
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Salvar Todos")
                 }
             }
         }
@@ -154,97 +169,103 @@ fun MedicationFormCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Medicamento $medicationNumber",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                
-                if (onDelete != null) {
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            Icons.Filled.Delete,
-                            contentDescription = "Remover medicamento",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-            }
-            
+            MedicationFormHeader(medicationNumber, onDelete)
             Spacer(modifier = Modifier.height(8.dp))
-            
-            OutlinedTextField(
-                value = medication.name,
-                onValueChange = { 
-                    onMedicationChange(medication.copy(name = it))
-                },
-                label = { Text("Nome do Medicamento") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = false
-            )
-            
+            MedicationFormFields(medication, onMedicationChange)
             Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedTextField(
-                    value = medication.dosage,
-                    onValueChange = { 
-                        onMedicationChange(medication.copy(dosage = it))
-                    },
-                    label = { Text("Dosagem") },
-                    modifier = Modifier.weight(1f)
+            MedicationValidationIndicator(medication)
+        }
+    }
+}
+
+@Composable
+private fun MedicationFormHeader(
+    medicationNumber: Int,
+    onDelete: (() -> Unit)?
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Medicamento $medicationNumber",
+            style = MaterialTheme.typography.titleMedium
+        )
+        onDelete?.let {
+            IconButton(onClick = it) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Remover medicamento",
+                    tint = MaterialTheme.colorScheme.error
                 )
-                
-                OutlinedTextField(
-                    value = medication.frequency,
-                    onValueChange = { 
-                        onMedicationChange(medication.copy(frequency = it))
-                    },
-                    label = { Text("Frequência") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            OutlinedTextField(
-                value = medication.schedule,
-                onValueChange = { 
-                    onMedicationChange(medication.copy(schedule = it))
-                },
-                label = { Text("Horário (ex: 8h, 14h, 20h)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            // Indicador visual de validação
-            if (medication.name.isNotBlank() || medication.dosage.isNotBlank() || 
-                medication.frequency.isNotBlank() || medication.schedule.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val isValid = medication.isValid()
-                    Icon(
-                        imageVector = if (isValid) Icons.Filled.Add else Icons.Filled.Delete,
-                        contentDescription = if (isValid) "Válido" else "Inválido",
-                        tint = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (isValid) "Medicamento válido" else "Preencha todos os campos",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                    )
-                }
             }
         }
     }
+}
+
+@Composable
+private fun MedicationFormFields(
+    medication: MedicationForm,
+    onMedicationChange: (MedicationForm) -> Unit
+) {
+    OutlinedTextField(
+        value = medication.name,
+        onValueChange = { onMedicationChange(medication.copy(name = it)) },
+        label = { Text("Nome do Medicamento") },
+        modifier = Modifier.fillMaxWidth(),
+        isError = false
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedTextField(
+            value = medication.dosage,
+            onValueChange = { onMedicationChange(medication.copy(dosage = it)) },
+            label = { Text("Dosagem") },
+            modifier = Modifier.weight(1f)
+        )
+        OutlinedTextField(
+            value = medication.frequency,
+            onValueChange = { onMedicationChange(medication.copy(frequency = it)) },
+            label = { Text("Frequência") },
+            modifier = Modifier.weight(1f)
+        )
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = medication.schedule,
+        onValueChange = { onMedicationChange(medication.copy(schedule = it)) },
+        label = { Text("Horário (ex: 8h, 14h, 20h)") },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun MedicationValidationIndicator(medication: MedicationForm) {
+    if (medication.name.isNotBlank() || medication.dosage.isNotBlank() ||
+        medication.frequency.isNotBlank() || medication.schedule.isNotBlank()
+    ) {
+        Spacer(modifier = Modifier.height(8.dp))
+        val isValid = medication.isValid()
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (isValid) Icons.Filled.Add else Icons.Filled.Delete,
+                contentDescription = if (isValid) "Válido" else "Inválido",
+                tint = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = if (isValid) "Medicamento válido" else "Preencha todos os campos",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
 }

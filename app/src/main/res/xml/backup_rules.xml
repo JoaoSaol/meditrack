@@ -6,8 +6,5 @@
    ignored on devices that don't have Google Play Services.
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+
 </full-backup-content>
