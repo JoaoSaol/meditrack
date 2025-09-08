@@ -1,0 +1,42 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checar o código
+      uses: actions/checkout@v2
+
+    - name: Configurar o JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Instalar dependências do Android
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
+        mkdir -p $HOME/cmdline-tools
+        unzip commandlinetools-linux-6200805_latest.zip -d $HOME/cmdline-tools
+        yes | $HOME/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android/Sdk --licenses
+        $HOME/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android/Sdk "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+    - name: Executar testes unitários
+      run: ./gradlew testDebugUnitTest
+
+    - name: Executar todos os testes
+      run: ./gradlew test
+
+    - name: Executar testes de instrumentação
+      run: ./gradlew connectedAndroidTest
