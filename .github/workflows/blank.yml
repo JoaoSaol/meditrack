@@ -27,10 +27,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y wget unzip
         wget https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
-        mkdir -p $HOME/cmdline-tools
-        unzip commandlinetools-linux-6200805_latest.zip -d $HOME/cmdline-tools
-        yes | $HOME/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android/Sdk --licenses
-        $HOME/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android/Sdk "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+        mkdir -p $HOME/cmdline-tools/latest
+        unzip commandlinetools-linux-6200805_latest.zip -d $HOME/cmdline-tools/latest
+        export ANDROID_HOME=$HOME/Android/Sdk
+        export PATH=$PATH:$HOME/cmdline-tools/latest/cmdline-tools/bin
+        yes | $HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+        $HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
     - name: Executar testes unitários
       run: ./gradlew testDebugUnitTest
