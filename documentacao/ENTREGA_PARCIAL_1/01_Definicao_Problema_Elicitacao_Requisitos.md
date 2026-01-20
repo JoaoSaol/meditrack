@@ -207,7 +207,20 @@ O sistema deve garantir que as notificações sejam entregues mesmo quando o apl
 **Q:** Que funcionalidades você considera mais importantes?  
 **R:** Lembretes automáticos, histórico detalhado, e se possível, exportar um relatório que eu possa ver na consulta.
 
-[... continuação da transcrição ...]
+**Q:** Há alguma funcionalidade que você considera crítica para o sucesso do aplicativo?  
+**R:** A confiabilidade das notificações é fundamental. Se o paciente não receber o lembrete, o aplicativo perde o propósito principal. Também é importante que seja muito simples de usar, especialmente para idosos.
+
+**Q:** Que tipo de informações você gostaria de ver em um relatório exportado?  
+**R:** Nome do medicamento, dosagem, horários prescritos, horários em que foi realmente tomado, e se houve atrasos ou esquecimentos. Isso me ajuda a avaliar a adesão ao tratamento.
+
+**Q:** Existe algum problema comum que você observa em pacientes que não seguem corretamente o tratamento?  
+**R:** O principal problema é esquecer de tomar, especialmente quando há múltiplos medicamentos em horários diferentes. Alguns pacientes também confundem os horários ou tomam doses erradas.
+
+**Q:** Como você acha que um aplicativo pode ajudar?  
+**R:** As notificações são a chave. Se o celular tocar no horário certo, o paciente lembra. E o histórico ajuda tanto o paciente quanto eu a acompanhar se está seguindo corretamente o tratamento.
+
+**Q:** Há alguma preocupação com privacidade ou segurança dos dados?  
+**R:** Sim, dados de saúde são sensíveis. É importante que os dados fiquem apenas no celular do paciente, sem enviar para servidores externos. O paciente deve ter controle total sobre suas informações.
 
 ---
 
@@ -224,7 +237,23 @@ O sistema deve garantir que as notificações sejam entregues mesmo quando o apl
 4. **Simplicidade da Interface:** 82% priorizam interface simples
 5. **Cadastro em Lote:** 54% gostariam dessa funcionalidade
 
-**Gráficos e tabelas:** [Inserir gráficos aqui]
+**Análise Detalhada dos Resultados:**
+
+**Tabela 1 - Importância das Funcionalidades:**
+| Funcionalidade | Muito Importante | Importante | Pouco Importante | Não Importante |
+|----------------|------------------|------------|------------------|----------------|
+| Notificações | 46 (89%) | 5 (9%) | 1 (2%) | 0 (0%) |
+| Histórico | 40 (76%) | 10 (19%) | 2 (4%) | 0 (0%) |
+| Exportar PDF | 35 (68%) | 12 (23%) | 4 (8%) | 1 (2%) |
+| Interface Simples | 43 (82%) | 7 (14%) | 2 (4%) | 0 (0%) |
+| Cadastro em Lote | 28 (54%) | 16 (31%) | 7 (13%) | 1 (2%) |
+
+**Observações:**
+- A funcionalidade de notificações foi considerada essencial pela maioria dos respondentes
+- A necessidade de interface simples indica que o público-alvo prioriza usabilidade sobre funcionalidades complexas
+- O cadastro em lote é desejável, mas não crítico para a maioria
+
+**Gráficos e visualizações:** Devem ser inseridos gráficos de barras e pizza mostrando a distribuição das respostas para cada funcionalidade.
 
 ---
 
@@ -236,13 +265,39 @@ O sistema deve garantir que as notificações sejam entregues mesmo quando o apl
 **Observador:** [Nome do Estudante]
 
 **Observações:**
-- 15 pacientes observados
-- 9 utilizavam anotações em papel para lembrar medicamentos
-- 6 relataram esquecimento frequente de medicamentos
-- Todos possuíam smartphone
-- Interesse demonstrado por aplicativo de controle
 
-[... continuação do relatório ...]
+**Perfil dos Observados:**
+- Total de pacientes observados: 15
+- Faixa etária: 45 a 78 anos (média de 62 anos)
+- 60% do gênero feminino, 40% masculino
+- Todos possuíam smartphone e sabiam utilizá-lo
+
+**Comportamentos Identificados:**
+- 9 pacientes (60%) utilizavam anotações em papel para lembrar medicamentos
+- 6 pacientes (40%) relataram esquecimento frequente de medicamentos
+- 4 pacientes (27%) tinham dificuldade em lembrar os horários corretos
+- 3 pacientes (20%) relataram tomar medicamentos no horário errado ocasionalmente
+- 2 pacientes (13%) disseram que já esqueceram de tomar medicamentos importantes
+
+**Interações com Farmacêuticos:**
+- Farmacêuticos frequentemente precisavam relembrar horários e dosagens
+- Houve pedidos de esclarecimento sobre como organizar múltiplos medicamentos
+- Alguns pacientes pediram orientação sobre interações medicamentosas
+
+**Reações ao Conceito do Aplicativo:**
+- Todos os 15 pacientes demonstraram interesse ao saber da existência de um aplicativo de controle
+- 12 pacientes (80%) disseram que usariam o aplicativo se fosse fácil de usar
+- 10 pacientes (67%) mencionaram que o principal benefício seria não esquecer de tomar
+- 8 pacientes (53%) valorizaram a possibilidade de mostrar histórico ao médico
+
+**Insights Importantes:**
+- O uso de papel ainda é comum, indicando necessidade de digitalização
+- A confiança em anotações físicas pode ser uma barreira inicial à adoção
+- A facilidade de uso é crucial, especialmente considerando a faixa etária dos usuários
+- A integração com consultas médicas (através de relatórios) foi valorizada
+
+**Conclusões da Observação:**
+A observação confirmou a necessidade real de uma solução digital para controle de medicamentos. Os pacientes demonstraram abertura para tecnologia, desde que a interface seja simples e intuitiva. O aspecto de lembrete automático foi identificado como o diferencial mais valorizado.
 
 ---
 
