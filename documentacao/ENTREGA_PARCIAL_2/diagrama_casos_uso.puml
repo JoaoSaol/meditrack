@@ -1,0 +1,52 @@
+@startuml Diagrama_Casos_Uso_MediTrack
+
+left to right direction
+
+actor Usuário as usuario
+actor "Sistema\n(WorkManager)" as sistema
+
+rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" {
+  
+  usecase "CU01: Cadastrar\nMedicamento" as CU01
+  usecase "CU02: Listar\nMedicamentos" as CU02
+  usecase "CU03: Visualizar Detalhes\ndo Medicamento" as CU03
+  usecase "CU04: Editar\nMedicamento" as CU04
+  usecase "CU05: Marcar Medicamento\ncomo Tomado" as CU05
+  usecase "CU06: Cadastrar Medicamentos\nem Lote" as CU06
+  usecase "CU07: Receber Notificação\nde Lembrete" as CU07
+  usecase "CU08: Exportar Histórico\nem PDF" as CU08
+  
+  usuario --> CU01
+  usuario --> CU02
+  usuario --> CU03
+  usuario --> CU05
+  usuario --> CU06
+  usuario --> CU08
+  
+  sistema --> CU07
+  
+  CU03 ..> CU04 : <<include>>
+  CU03 ..> CU05 : <<include>>
+  CU04 ..> CU01 : <<extend>>
+  CU07 ..> usuario : notifica
+  CU07 ..> CU03 : pode abrir
+  
+  note right of CU01
+    Permite cadastrar um novo
+    medicamento com todas as
+    informações necessárias
+  end note
+  
+  note right of CU06
+    Permite cadastrar múltiplos
+    medicamentos de uma vez
+  end note
+  
+  note right of CU07
+    Notificações automáticas
+    enviadas nos horários
+    programados
+  end note
+}
+
+@enduml
