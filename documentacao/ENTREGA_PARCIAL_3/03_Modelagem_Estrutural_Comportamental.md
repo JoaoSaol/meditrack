@@ -2,7 +2,8 @@
 ## Modelagem Estrutural e Comportamental
 
 **Projeto:** MediTrack - Sistema de Gerenciamento de Medicamentos  
-**Disciplina:** Análise de Sistemas de Informação  
+**Disciplina:** Análise de Sistemas de Informação
+**Alunos:** Sophia Lannah, João Marcos e Victor Gabriel
 **Professor:** Otávio Calaça Xavier  
 **Data:** 09/12/2025
 
