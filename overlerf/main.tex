@@ -806,53 +806,105 @@ O sistema MediTrack possui 8 casos de uso principais, envolvendo o ator Usuário
 
 \begin{lstlisting}
 @startuml Diagrama_Casos_Uso_MediTrack
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam maxMessageSize 60
+skinparam linetype ortho
+
+skinparam actor {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam usecase {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam rectangle {
+    BackgroundColor #FFF9C4
+    BorderColor #F57F17
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
 
 left to right direction
 
-actor Usuário as usuario
-actor "Sistema\n(WorkManager)" as sistema
+actor "Usuário" as usuario #LightBlue
+actor "Sistema\n(WorkManager)" as sistema #LightGreen
 
-rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" {
+rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" #FFF9C4 {
   
-  usecase "CU01: Cadastrar\nMedicamento" as CU01
-  usecase "CU02: Listar\nMedicamentos" as CU02
-  usecase "CU03: Visualizar Detalhes\ndo Medicamento" as CU03
-  usecase "CU04: Editar\nMedicamento" as CU04
-  usecase "CU05: Marcar Medicamento\ncomo Tomado" as CU05
-  usecase "CU06: Cadastrar Medicamentos\nem Lote" as CU06
-  usecase "CU07: Receber Notificação\nde Lembrete" as CU07
-  usecase "CU08: Exportar Histórico\nem PDF" as CU08
+  package "Gerenciamento de Medicamentos" {
+    usecase "CU01: Cadastrar\nMedicamento" as CU01
+    usecase "CU02: Listar\nMedicamentos" as CU02
+    usecase "CU03: Visualizar Detalhes\ndo Medicamento" as CU03
+    usecase "CU04: Editar\nMedicamento" as CU04
+    usecase "CU05: Marcar Medicamento\ncomo Tomado" as CU05
+    usecase "CU06: Cadastrar Medicamentos\nem Lote" as CU06
+  }
   
-  usuario --> CU01
-  usuario --> CU02
-  usuario --> CU03
-  usuario --> CU05
-  usuario --> CU06
-  usuario --> CU08
+  package "Notificações" {
+    usecase "CU07: Receber Notificação\nde Lembrete" as CU07
+  }
   
-  sistema --> CU07
+  package "Relatórios" {
+    usecase "CU08: Exportar Histórico\nem PDF" as CU08
+  }
   
+  ' Relacionamentos com atores
+  usuario --> CU01 : <<uses>>
+  usuario --> CU02 : <<uses>>
+  usuario --> CU03 : <<uses>>
+  usuario --> CU05 : <<uses>>
+  usuario --> CU06 : <<uses>>
+  usuario --> CU08 : <<uses>>
+  
+  sistema --> CU07 : <<triggers>>
+  
+  ' Relacionamentos entre casos de uso
   CU03 ..> CU04 : <<include>>
   CU03 ..> CU05 : <<include>>
   CU04 ..> CU01 : <<extend>>
   CU07 ..> usuario : notifica
-  CU07 ..> CU03 : pode abrir
+  CU07 ..> CU03 : <<extend>>
   
   note right of CU01
+    <b>Descrição:</b>
     Permite cadastrar um novo
     medicamento com todas as
     informações necessárias
+    (nome, dosagem, frequência, horários)
   end note
   
   note right of CU06
+    <b>Descrição:</b>
     Permite cadastrar múltiplos
-    medicamentos de uma vez
+    medicamentos de uma vez,
+    otimizando o processo de
+    cadastro inicial
   end note
   
   note right of CU07
+    <b>Descrição:</b>
     Notificações automáticas
     enviadas nos horários
-    programados
+    programados pelo sistema
+    WorkManager do Android
   end note
 }
 
@@ -1041,96 +1093,214 @@ O diagrama de classes do sistema MediTrack apresenta os seguintes relacionamento
 
 \begin{lstlisting}
 @startuml Diagrama_Classes_MediTrack
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam linetype ortho
 
-skinparam classAttributeIconSize 0
-
-class Medication {
-  - id: Int
-  - name: String
-  - dosage: String
-  - frequency: String
-  - schedule: String
-  - status: String
-  + isValid(): Boolean
+skinparam class {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeFontStyle normal
+    MethodFontSize 10
+    MethodFontStyle italic
 }
 
-interface MedicationDao {
-  + insert(medication: Medication): void
-  + update(medication: Medication): void
-  + getAll(): Flow<List<Medication>>
-  + getById(id: Int): Medication?
+skinparam interface {
+    BackgroundColor #F1F8E9
+    BorderColor #558B2F
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeFontStyle normal
+    MethodFontSize 10
+    MethodFontStyle italic
 }
 
-interface MedicationRepository {
-  + insertMedication(medication: Medication): void
-  + updateMedication(medication: Medication): void
-  + getAllMedications(): Flow<List<Medication>>
-  + getMedicationById(id: Int): Medication?
+skinparam abstract {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeFontStyle normal
+    MethodFontSize 10
+    MethodFontStyle italic
 }
 
-class MedicationRepositoryImpl {
-  - medicationDao: MedicationDao
-  + insertMedication(medication: Medication): void
-  + updateMedication(medication: Medication): void
-  + getAllMedications(): Flow<List<Medication>>
-  + getMedicationById(id: Int): Medication?
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #616161
 }
 
-abstract class MedicationDatabase {
-  + medicationDao(): MedicationDao
+skinparam arrow {
+    Color #424242
+    Thickness 2
 }
 
-class MedicationViewModel {
-  - medicationRepository: MedicationRepository
-  + allMedications: Flow<List<Medication>>
-  + insertMedication(medication: Medication): void
-  + updateMedication(medication: Medication): void
-  + markMedicationAsTaken(medication: Medication): void
-  + getMedicationById(id: Int): Flow<Medication?>
+package "Entidades" {
+    class Medication {
+        - id: Long
+        - name: String
+        - dosage: String
+        - frequency: String
+        - schedule: String
+        - status: MedicationStatus
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        --
+        + isValid(): Boolean
+        + markAsTaken(): void
+        + markAsDelayed(): void
+    }
+    
+    enum MedicationStatus {
+        PENDENTE
+        TOMADO
+        ATRASADO
+    }
 }
 
-class NotificationScheduler {
-  - context: Context
-  + scheduleNotification(medication: Medication): void
+package "Persistência" {
+    interface MedicationDao {
+        + insert(medication: Medication): Long
+        + update(medication: Medication): void
+        + delete(id: Long): void
+        + getAll(): Flow<List<Medication>>
+        + getById(id: Long): Flow<Medication?>
+        + getByStatus(status: MedicationStatus): Flow<List<Medication>>
+    }
+    
+    abstract class MedicationDatabase {
+        + medicationDao(): MedicationDao
+        {abstract}
+    }
+    
+    class AppDatabase {
+        - INSTANCE: AppDatabase
+        + medicationDao(): MedicationDao
+        + getInstance(context: Context): AppDatabase
+    }
 }
 
-class NotificationWorker {
-  - applicationContext: Context
-  - workerParams: WorkerParameters
-  + doWork(): Result
-  - showNotification(medicationName: String, medicationDosage: String): void
+package "Repositório" {
+    interface MedicationRepository {
+        + insertMedication(medication: Medication): Flow<Long>
+        + updateMedication(medication: Medication): Flow<Unit>
+        + deleteMedication(id: Long): Flow<Unit>
+        + getAllMedications(): Flow<List<Medication>>
+        + getMedicationById(id: Long): Flow<Medication?>
+        + markMedicationAsTaken(id: Long): Flow<Unit>
+    }
+    
+    class MedicationRepositoryImpl {
+        - medicationDao: MedicationDao
+        --
+        + insertMedication(medication: Medication): Flow<Long>
+        + updateMedication(medication: Medication): Flow<Unit>
+        + deleteMedication(id: Long): Flow<Unit>
+        + getAllMedications(): Flow<List<Medication>>
+        + getMedicationById(id: Long): Flow<Medication?>
+        + markMedicationAsTaken(id: Long): Flow<Unit>
+    }
 }
 
-class PdfGenerator {
-  - context: Context
-  + generateMedicationHistoryPdf(medications: List<Medication>): File?
+package "Apresentação" {
+    class MedicationViewModel {
+        - medicationRepository: MedicationRepository
+        - _allMedications: MutableStateFlow<List<Medication>>
+        - _selectedMedication: MutableStateFlow<Medication?>
+        --
+        + allMedications: StateFlow<List<Medication>>
+        + selectedMedication: StateFlow<Medication?>
+        + insertMedication(medication: Medication): Job
+        + updateMedication(medication: Medication): Job
+        + deleteMedication(id: Long): Job
+        + markMedicationAsTaken(id: Long): Job
+        + getMedicationById(id: Long): Job
+    }
 }
 
-interface AppContainer {
-  + medicationDatabase: MedicationDatabase
-  + medicationRepository: MedicationRepository
+package "Notificações" {
+    class NotificationScheduler {
+        - context: Context
+        - workManager: WorkManager
+        --
+        + scheduleNotification(medication: Medication): void
+        + cancelNotification(medicationId: Long): void
+        + rescheduleAllNotifications(): void
+        - createWorkRequest(medication: Medication, time: LocalTime): PeriodicWorkRequest
+    }
+    
+    class NotificationWorker {
+        - applicationContext: Context
+        - workerParams: WorkerParameters
+        --
+        + doWork(): Result
+        - showNotification(medicationName: String, medicationDosage: String): void
+        - createNotificationChannel(): void
+    }
 }
 
-class AppDataContainer {
-  - context: Context
-  + medicationDatabase: MedicationDatabase
-  + medicationRepository: MedicationRepository
+package "Relatórios" {
+    class PdfGenerator {
+        - context: Context
+        - document: Document
+        --
+        + generateMedicationHistoryPdf(medications: List<Medication>): File?
+        + generateMedicationReport(medication: Medication): File?
+        - createDocumentHeader(): void
+        - createMedicationTable(medications: List<Medication>): void
+        - savePdfFile(document: Document): File?
+    }
 }
 
-' Relacionamentos
-MedicationRepositoryImpl ..|> MedicationRepository : implements
-MedicationRepositoryImpl *-- MedicationDao : uses
+package "Injeção de Dependências" {
+    interface AppContainer {
+        + medicationDatabase: MedicationDatabase
+        + medicationRepository: MedicationRepository
+    }
+    
+    class AppDataContainer {
+        - context: Context
+        - _medicationDatabase: MedicationDatabase
+        - _medicationRepository: MedicationRepository
+        --
+        + medicationDatabase: MedicationDatabase
+        + medicationRepository: MedicationRepository
+    }
+}
 
+' Relacionamentos - Entidades
+Medication --> MedicationStatus : uses
+
+' Relacionamentos - Persistência
+AppDatabase --|> MedicationDatabase : extends
 MedicationDatabase "1" *-- "0..*" Medication : stores
 MedicationDatabase o-- MedicationDao : provides
 
+' Relacionamentos - Repositório
+MedicationRepositoryImpl ..|> MedicationRepository : implements
+MedicationRepositoryImpl *-- MedicationDao : uses
+
+' Relacionamentos - Apresentação
 MedicationViewModel --> MedicationRepository : uses
 
-NotificationScheduler ..> Medication : depends on
+' Relacionamentos - Notificações
+NotificationScheduler --> Medication : uses
+NotificationScheduler --> NotificationWorker : creates
 NotificationWorker ..> Medication : uses
 
-PdfGenerator ..> Medication : uses
+' Relacionamentos - Relatórios
+PdfGenerator --> Medication : uses
 
+' Relacionamentos - Injeção de Dependências
 AppDataContainer ..|> AppContainer : implements
 AppDataContainer *-- MedicationDatabase : creates
 AppDataContainer *-- MedicationRepositoryImpl : creates
@@ -1171,38 +1341,94 @@ Este processo envolve desde o preenchimento do formulário pelo usuário até o 
 
 \begin{lstlisting}
 @startuml Diagrama_Atividades_Cadastrar_Medicamento
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam activity {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam partition {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
 
 start
 
-:Usuário acessa formulário de cadastro;
+partition "Interface do Usuário" {
+    :Usuário acessa tela de\ncadastro de medicamento;
+    :Sistema exibe formulário\ncom campos obrigatórios;
+    note right
+        Campos: Nome, Dosagem,
+        Frequência, Horários
+    end note
+}
 
-:Sistema exibe campos do formulário\n(nome, dosagem, frequência, horário);
-
-:Usuário preenche informações;
-
-:Sistema valida campos obrigatórios;
-
-if (Campos válidos?) then (não)
-  :Sistema exibe mensagem de erro;
-  :Usuário preenche informações;
-  stop
-else (sim)
-  :Sistema cria objeto Medication;
-  :Sistema salva medicamento no banco de dados;
-  
-  partition Agendamento de Notificações {
-    :Sistema parse do horário\n(ex: "8h, 14h, 20h");
+partition "Validação" {
+    :Usuário preenche informações\ndo medicamento;
+    :Sistema valida campos obrigatórios;
     
-    while (Para cada horário) is (há mais horários)
-      :Sistema calcula delay até o horário;
-      :Sistema cria PeriodicWorkRequest;
-      :Sistema agenda notificação\ncom WorkManager;
+    if (Todos os campos válidos?) then (não)
+        :Sistema exibe mensagens\nde erro específicas;
+        :Usuário corrige informações;
+        :Sistema valida campos obrigatórios;
+    endif
+}
+
+partition "Persistência" {
+    :Sistema cria objeto Medication\ncom dados informados;
+    :Sistema define status inicial\ncomo PENDENTE;
+    :Sistema salva medicamento\nno banco de dados;
+    
+    if (Medicamento salvo com sucesso?) then (não)
+        :Sistema exibe mensagem\nde erro ao salvar;
+        stop
+    endif
+}
+
+partition "Agendamento de Notificações" {
+    :Sistema faz parse do campo\nschedule (ex: "8h, 14h, 20h");
+    
+    :Sistema extrai lista\nde horários;
+    
+    while (Há mais horários para processar?) is (sim)
+        :Sistema calcula delay\ndo horário atual até o horário\nda primeira dose;
+        
+        :Sistema cria PeriodicWorkRequest\ncom frequência diária;
+        
+        :Sistema agenda notificação\nusando WorkManager;
+        
+        note right
+            WorkManager garante
+            que a notificação será
+            exibida mesmo se o app
+            estiver em background
+        end note
     endwhile (não há mais horários)
-  }
-  
-  :Sistema retorna à tela de lista;
-  stop
-endif
+    
+    :Sistema registra todas as\nnotificações agendadas;
+}
+
+partition "Feedback ao Usuário" {
+    :Sistema atualiza lista\nde medicamentos;
+    :Sistema exibe mensagem\nde sucesso;
+    :Sistema retorna à tela\nde listagem;
+    stop
+}
 
 @enduml
 \end{lstlisting}
@@ -1245,55 +1471,134 @@ Este processo mostra a sequência de chamadas entre os componentes do sistema qu
 
 \begin{lstlisting}
 @startuml Diagrama_Sequencia_Marcar_Como_Tomado
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam maxMessageSize 60
+skinparam linetype ortho
 
-actor Usuário
-participant "MedicationDetailScreen" as Screen
-participant "MedicationViewModel" as ViewModel
-participant "MedicationRepository" as Repository
-participant "MedicationDao" as Dao
-database "MedicationDatabase" as Database
+skinparam actor {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontSize 12
+    FontStyle bold
+}
 
-Usuário -> Screen: Clica em "Marcar como Tomado"
-activate Screen
+skinparam participant {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    FontSize 11
+    FontStyle bold
+}
 
-Screen -> ViewModel: markMedicationAsTaken(medication)
-activate ViewModel
+skinparam database {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    FontSize 11
+    FontStyle bold
+}
 
-ViewModel -> ViewModel: Cria cópia com status = "Tomado"
-activate ViewModel
+skinparam arrow {
+    Color #424242
+    Thickness 2
+}
 
-ViewModel -> Repository: updateMedication(medication)
-activate Repository
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
 
-Repository -> Dao: update(medication)
-activate Dao
+actor "Usuário" as Usuario #LightBlue
+participant "MedicationDetailScreen" as Screen #LightCoral
+participant "MedicationViewModel" as ViewModel #LightGreen
+participant "MedicationRepository" as Repository #LightYellow
+participant "MedicationDao" as Dao #LightPink
+database "Room Database" as Database #LightGreen
 
-Dao -> Database: UPDATE medications SET status = 'Tomado'
-activate Database
+Usuario -> Screen: 1. Clica no botão\n"Marcar como Tomado"
+activate Screen #FFE0E0
 
-Database --> Dao: Atualização persistida
-deactivate Database
+Screen -> Screen: 2. Valida se medicamento\nnão está já marcado
+activate Screen #FFE0E0
 
-Dao --> Repository: Sucesso
-deactivate Dao
-
-Repository --> ViewModel: Sucesso
-deactivate Repository
-
-note right of ViewModel
-  O Flow reativo notifica
-  automaticamente os
-  observadores
-end note
-
-ViewModel --> Screen: Estado atualizado
-deactivate ViewModel
-
-Screen -> Screen: Atualiza interface
-Screen -> Screen: Remove botão "Marcar como Tomado"
-
-Screen --> Usuário: Interface atualizada
-deactivate Screen
+alt Medicamento já está marcado
+    Screen --> Usuario: Exibe mensagem:\n"Medicamento já foi tomado"
+    deactivate Screen
+else Medicamento não está marcado
+    Screen -> ViewModel: 3. markMedicationAsTaken(\nmedicationId: Long)
+    activate ViewModel #E0FFE0
+    
+    ViewModel -> ViewModel: 4. Cria cópia do medicamento\ncom status = TOMADO
+    activate ViewModel #E0FFE0
+    
+    ViewModel -> ViewModel: 5. Atualiza updatedAt\ncom timestamp atual
+    activate ViewModel #E0FFE0
+    
+    ViewModel -> Repository: 6. updateMedication(\nmedication: Medication)
+    activate Repository #FFFFE0
+    
+    Repository -> Repository: 7. Valida dados\ndo medicamento
+    activate Repository #FFFFE0
+    
+    Repository -> Dao: 8. update(medication: Medication)
+    activate Dao #FFE0FF
+    
+    Dao -> Database: 9. UPDATE medications\nSET status = 'TOMADO',\nupdatedAt = NOW()\nWHERE id = ?
+    activate Database #E0FFE0
+    
+    Database --> Dao: 10. Retorna número de\nlinhas afetadas
+    deactivate Database
+    
+    alt Atualização bem-sucedida
+        Dao --> Repository: 11. Sucesso (rows > 0)
+        deactivate Dao
+        
+        Repository --> ViewModel: 12. Flow emite\nmedication atualizado
+        deactivate Repository
+        
+        note right of ViewModel
+            O Flow reativo notifica
+            automaticamente todos os
+            observadores (StateFlow)
+            sobre a mudança de estado
+        end note
+        
+        ViewModel -> ViewModel: 13. Atualiza StateFlow\nallMedications
+        activate ViewModel #E0FFE0
+        
+        ViewModel --> Screen: 14. Estado atualizado\nvia StateFlow
+        deactivate ViewModel
+        
+        Screen -> Screen: 15. Atualiza UI com\nnovo estado
+        activate Screen #FFE0E0
+        
+        Screen -> Screen: 16. Remove botão\n"Marcar como Tomado"
+        activate Screen #FFE0E0
+        
+        Screen -> Screen: 17. Exibe indicador\n"Medicamento Tomado"
+        activate Screen #FFE0E0
+        
+        Screen --> Usuario: 18. Interface atualizada\ncom feedback visual
+        deactivate Screen
+        
+    else Erro na atualização
+        Dao --> Repository: 11. Erro (rows = 0)
+        deactivate Dao
+        
+        Repository --> ViewModel: 12. Flow emite erro
+        deactivate Repository
+        
+        ViewModel --> Screen: 13. Erro ao atualizar
+        deactivate ViewModel
+        
+        Screen --> Usuario: 14. Exibe mensagem de erro
+        deactivate Screen
+    endif
+endif
 
 @enduml
 \end{lstlisting}
@@ -1322,36 +1627,89 @@ deactivate Screen
 
 \begin{lstlisting}
 @startuml Diagrama_Estados_Medicamento
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
 
-[*] --> Pendente : Cadastrar
+skinparam state {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam arrow {
+    Color #424242
+    Thickness 2
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
+
+[*] --> Pendente : Cadastrar medicamento
 
 state Pendente {
-  : Medicamento cadastrado
-  : Aguardando horário
+    state "Medicamento cadastrado" as P1
+    state "Aguardando horário\nda primeira dose" as P2
+    
+    P1 --> P2 : Horário agendado
 }
 
 state Atrasado {
-  : Horário passou
-  : Medicamento não tomado
+    state "Horário da dose passou" as A1
+    state "Medicamento não tomado" as A2
+    state "Sistema detecta atraso" as A3
+    
+    A1 --> A2 : Horário passou
+    A2 --> A3 : Sistema verifica status
 }
 
 state Tomado {
-  : Medicamento administrado
-  : Registrado data/hora
+    state "Usuário marca como tomado" as T1
+    state "Registrado data/hora" as T2
+    state "Status finalizado" as T3
+    
+    T1 --> T2 : Confirmação
+    T2 --> T3 : Persistido no BD
 }
 
-Pendente --> Tomado : Marcar como Tomado
-Atrasado --> Tomado : Marcar como Tomado
-Pendente --> Atrasado : Horário passou\n(sistema)
+Pendente --> Tomado : marcarComoTomado()\n[usuário confirma]
+Pendente --> Atrasado : verificarHorario()\n[horário passou && status = PENDENTE]
+Atrasado --> Tomado : marcarComoTomado()\n[usuário confirma]
 
 note right of Pendente
-  Estado inicial quando
-  medicamento é cadastrado
+    <b>Estado Inicial</b>
+    Quando o medicamento é
+    cadastrado, ele inicia
+    no estado PENDENTE.
+    O sistema aguarda o
+    horário programado.
+end note
+
+note right of Atrasado
+    <b>Estado de Atraso</b>
+    O sistema verifica
+    periodicamente se o
+    horário passou sem
+    o medicamento ser tomado.
+    Pode ser marcado como
+    tomado mesmo estando atrasado.
 end note
 
 note right of Tomado
-  Estado final quando
-  usuário marca como tomado
+    <b>Estado Final</b>
+    Quando o usuário marca
+    como tomado, o sistema
+    registra a data e hora
+    exata da confirmação.
+    Este é um estado terminal
+    para aquela dose específica.
 end note
 
 @enduml
