@@ -1,0 +1,96 @@
+@startuml Diagrama_Classes_MediTrack
+
+skinparam classAttributeIconSize 0
+
+class Medication {
+  - id: Int
+  - name: String
+  - dosage: String
+  - frequency: String
+  - schedule: String
+  - status: String
+  + isValid(): Boolean
+}
+
+interface MedicationDao {
+  + insert(medication: Medication): void
+  + update(medication: Medication): void
+  + getAll(): Flow<List<Medication>>
+  + getById(id: Int): Medication?
+}
+
+interface MedicationRepository {
+  + insertMedication(medication: Medication): void
+  + updateMedication(medication: Medication): void
+  + getAllMedications(): Flow<List<Medication>>
+  + getMedicationById(id: Int): Medication?
+}
+
+class MedicationRepositoryImpl {
+  - medicationDao: MedicationDao
+  + insertMedication(medication: Medication): void
+  + updateMedication(medication: Medication): void
+  + getAllMedications(): Flow<List<Medication>>
+  + getMedicationById(id: Int): Medication?
+}
+
+abstract class MedicationDatabase {
+  + medicationDao(): MedicationDao
+}
+
+class MedicationViewModel {
+  - medicationRepository: MedicationRepository
+  + allMedications: Flow<List<Medication>>
+  + insertMedication(medication: Medication): void
+  + updateMedication(medication: Medication): void
+  + markMedicationAsTaken(medication: Medication): void
+  + getMedicationById(id: Int): Flow<Medication?>
+}
+
+class NotificationScheduler {
+  - context: Context
+  + scheduleNotification(medication: Medication): void
+}
+
+class NotificationWorker {
+  - applicationContext: Context
+  - workerParams: WorkerParameters
+  + doWork(): Result
+  - showNotification(medicationName: String, medicationDosage: String): void
+}
+
+class PdfGenerator {
+  - context: Context
+  + generateMedicationHistoryPdf(medications: List<Medication>): File?
+}
+
+interface AppContainer {
+  + medicationDatabase: MedicationDatabase
+  + medicationRepository: MedicationRepository
+}
+
+class AppDataContainer {
+  - context: Context
+  + medicationDatabase: MedicationDatabase
+  + medicationRepository: MedicationRepository
+}
+
+' Relacionamentos
+MedicationRepositoryImpl ..|> MedicationRepository : implements
+MedicationRepositoryImpl *-- MedicationDao : uses
+
+MedicationDatabase "1" *-- "0..*" Medication : stores
+MedicationDatabase o-- MedicationDao : provides
+
+MedicationViewModel --> MedicationRepository : uses
+
+NotificationScheduler ..> Medication : depends on
+NotificationWorker ..> Medication : uses
+
+PdfGenerator ..> Medication : uses
+
+AppDataContainer ..|> AppContainer : implements
+AppDataContainer *-- MedicationDatabase : creates
+AppDataContainer *-- MedicationRepositoryImpl : creates
+
+@enduml

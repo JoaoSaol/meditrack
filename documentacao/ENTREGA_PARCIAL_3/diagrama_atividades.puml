@@ -1,0 +1,35 @@
+@startuml Diagrama_Atividades_Cadastrar_Medicamento
+
+start
+
+:Usuário acessa formulário de cadastro;
+
+:Sistema exibe campos do formulário\n(nome, dosagem, frequência, horário);
+
+:Usuário preenche informações;
+
+:Sistema valida campos obrigatórios;
+
+if (Campos válidos?) then (não)
+  :Sistema exibe mensagem de erro;
+  :Usuário preenche informações;
+  stop
+else (sim)
+  :Sistema cria objeto Medication;
+  :Sistema salva medicamento no banco de dados;
+  
+  partition Agendamento de Notificações {
+    :Sistema parse do horário\n(ex: "8h, 14h, 20h");
+    
+    while (Para cada horário) is (há mais horários)
+      :Sistema calcula delay até o horário;
+      :Sistema cria PeriodicWorkRequest;
+      :Sistema agenda notificação\ncom WorkManager;
+    endwhile (não há mais horários)
+  }
+  
+  :Sistema retorna à tela de lista;
+  stop
+endif
+
+@enduml
