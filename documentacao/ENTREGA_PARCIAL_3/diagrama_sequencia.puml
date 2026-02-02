@@ -1,52 +1,131 @@
 @startuml Diagrama_Sequencia_Marcar_Como_Tomado
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam maxMessageSize 60
+skinparam linetype ortho
 
-actor Usuário
-participant "MedicationDetailScreen" as Screen
-participant "MedicationViewModel" as ViewModel
-participant "MedicationRepository" as Repository
-participant "MedicationDao" as Dao
-database "MedicationDatabase" as Database
+skinparam actor {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontSize 12
+    FontStyle bold
+}
 
-Usuário -> Screen: Clica em "Marcar como Tomado"
-activate Screen
+skinparam participant {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    FontSize 11
+    FontStyle bold
+}
 
-Screen -> ViewModel: markMedicationAsTaken(medication)
-activate ViewModel
+skinparam database {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    FontSize 11
+    FontStyle bold
+}
 
-ViewModel -> ViewModel: Cria cópia com status = "Tomado"
-activate ViewModel
+skinparam arrow {
+    Color #424242
+    Thickness 2
+}
 
-ViewModel -> Repository: updateMedication(medication)
-activate Repository
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
 
-Repository -> Dao: update(medication)
-activate Dao
+actor "Usuário" as Usuario #LightBlue
+participant "MedicationDetailScreen" as Screen #LightCoral
+participant "MedicationViewModel" as ViewModel #LightGreen
+participant "MedicationRepository" as Repository #LightYellow
+participant "MedicationDao" as Dao #LightPink
+database "Room Database" as Database #LightGreen
 
-Dao -> Database: UPDATE medications SET status = 'Tomado'
-activate Database
+Usuario -> Screen: 1. Clica no botão\n"Marcar como Tomado"
+activate Screen #FFE0E0
 
-Database --> Dao: Atualização persistida
-deactivate Database
+Screen -> Screen: 2. Valida se medicamento\nnão está já marcado
+activate Screen #FFE0E0
 
-Dao --> Repository: Sucesso
-deactivate Dao
-
-Repository --> ViewModel: Sucesso
-deactivate Repository
-
-note right of ViewModel
-  O Flow reativo notifica
-  automaticamente os
-  observadores
-end note
-
-ViewModel --> Screen: Estado atualizado
-deactivate ViewModel
-
-Screen -> Screen: Atualiza interface
-Screen -> Screen: Remove botão "Marcar como Tomado"
-
-Screen --> Usuário: Interface atualizada
-deactivate Screen
+alt Medicamento já está marcado
+    Screen --> Usuario: Exibe mensagem:\n"Medicamento já foi tomado"
+    deactivate Screen
+else Medicamento não está marcado
+    Screen -> ViewModel: 3. markMedicationAsTaken(\nmedicationId: Long)
+    activate ViewModel #E0FFE0
+    
+    ViewModel -> ViewModel: 4. Cria cópia do medicamento\ncom status = TOMADO
+    activate ViewModel #E0FFE0
+    
+    ViewModel -> ViewModel: 5. Atualiza updatedAt\ncom timestamp atual
+    activate ViewModel #E0FFE0
+    
+    ViewModel -> Repository: 6. updateMedication(\nmedication: Medication)
+    activate Repository #FFFFE0
+    
+    Repository -> Repository: 7. Valida dados\ndo medicamento
+    activate Repository #FFFFE0
+    
+    Repository -> Dao: 8. update(medication: Medication)
+    activate Dao #FFE0FF
+    
+    Dao -> Database: 9. UPDATE medications\nSET status = 'TOMADO',\nupdatedAt = NOW()\nWHERE id = ?
+    activate Database #E0FFE0
+    
+    Database --> Dao: 10. Retorna número de\nlinhas afetadas
+    deactivate Database
+    
+    alt Atualização bem-sucedida
+        Dao --> Repository: 11. Sucesso (rows > 0)
+        deactivate Dao
+        
+        Repository --> ViewModel: 12. Flow emite\nmedication atualizado
+        deactivate Repository
+        
+        note right of ViewModel
+            O Flow reativo notifica
+            automaticamente todos os
+            observadores (StateFlow)
+            sobre a mudança de estado
+        end note
+        
+        ViewModel -> ViewModel: 13. Atualiza StateFlow\nallMedications
+        activate ViewModel #E0FFE0
+        
+        ViewModel --> Screen: 14. Estado atualizado\nvia StateFlow
+        deactivate ViewModel
+        
+        Screen -> Screen: 15. Atualiza UI com\nnovo estado
+        activate Screen #FFE0E0
+        
+        Screen -> Screen: 16. Remove botão\n"Marcar como Tomado"
+        activate Screen #FFE0E0
+        
+        Screen -> Screen: 17. Exibe indicador\n"Medicamento Tomado"
+        activate Screen #FFE0E0
+        
+        Screen --> Usuario: 18. Interface atualizada\ncom feedback visual
+        deactivate Screen
+        
+    else Erro na atualização
+        Dao --> Repository: 11. Erro (rows = 0)
+        deactivate Dao
+        
+        Repository --> ViewModel: 12. Flow emite erro
+        deactivate Repository
+        
+        ViewModel --> Screen: 13. Erro ao atualizar
+        deactivate ViewModel
+        
+        Screen --> Usuario: 14. Exibe mensagem de erro
+        deactivate Screen
+    endif
+endif
 
 @enduml

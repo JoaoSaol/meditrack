@@ -1,51 +1,103 @@
 @startuml Diagrama_Casos_Uso_MediTrack
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam maxMessageSize 60
+skinparam linetype ortho
+
+skinparam actor {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam usecase {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam rectangle {
+    BackgroundColor #FFF9C4
+    BorderColor #F57F17
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
 
 left to right direction
 
-actor Usuário as usuario
-actor "Sistema\n(WorkManager)" as sistema
+actor "Usuário" as usuario #LightBlue
+actor "Sistema\n(WorkManager)" as sistema #LightGreen
 
-rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" {
+rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" #FFF9C4 {
   
-  usecase "CU01: Cadastrar\nMedicamento" as CU01
-  usecase "CU02: Listar\nMedicamentos" as CU02
-  usecase "CU03: Visualizar Detalhes\ndo Medicamento" as CU03
-  usecase "CU04: Editar\nMedicamento" as CU04
-  usecase "CU05: Marcar Medicamento\ncomo Tomado" as CU05
-  usecase "CU06: Cadastrar Medicamentos\nem Lote" as CU06
-  usecase "CU07: Receber Notificação\nde Lembrete" as CU07
-  usecase "CU08: Exportar Histórico\nem PDF" as CU08
+  package "Gerenciamento de Medicamentos" {
+    usecase "CU01: Cadastrar\nMedicamento" as CU01
+    usecase "CU02: Listar\nMedicamentos" as CU02
+    usecase "CU03: Visualizar Detalhes\ndo Medicamento" as CU03
+    usecase "CU04: Editar\nMedicamento" as CU04
+    usecase "CU05: Marcar Medicamento\ncomo Tomado" as CU05
+    usecase "CU06: Cadastrar Medicamentos\nem Lote" as CU06
+  }
   
-  usuario --> CU01
-  usuario --> CU02
-  usuario --> CU03
-  usuario --> CU05
-  usuario --> CU06
-  usuario --> CU08
+  package "Notificações" {
+    usecase "CU07: Receber Notificação\nde Lembrete" as CU07
+  }
   
-  sistema --> CU07
+  package "Relatórios" {
+    usecase "CU08: Exportar Histórico\nem PDF" as CU08
+  }
   
+  ' Relacionamentos com atores
+  usuario --> CU01 : <<uses>>
+  usuario --> CU02 : <<uses>>
+  usuario --> CU03 : <<uses>>
+  usuario --> CU05 : <<uses>>
+  usuario --> CU06 : <<uses>>
+  usuario --> CU08 : <<uses>>
+  
+  sistema --> CU07 : <<triggers>>
+  
+  ' Relacionamentos entre casos de uso
   CU03 ..> CU04 : <<include>>
   CU03 ..> CU05 : <<include>>
   CU04 ..> CU01 : <<extend>>
   CU07 ..> usuario : notifica
-  CU07 ..> CU03 : pode abrir
+  CU07 ..> CU03 : <<extend>>
   
   note right of CU01
+    <b>Descrição:</b>
     Permite cadastrar um novo
     medicamento com todas as
     informações necessárias
+    (nome, dosagem, frequência, horários)
   end note
   
   note right of CU06
+    <b>Descrição:</b>
     Permite cadastrar múltiplos
-    medicamentos de uma vez
+    medicamentos de uma vez,
+    otimizando o processo de
+    cadastro inicial
   end note
   
   note right of CU07
+    <b>Descrição:</b>
     Notificações automáticas
     enviadas nos horários
-    programados
+    programados pelo sistema
+    WorkManager do Android
   end note
 }
 

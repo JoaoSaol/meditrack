@@ -1,35 +1,91 @@
 @startuml Diagrama_Atividades_Cadastrar_Medicamento
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam activity {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam partition {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
 
 start
 
-:Usuário acessa formulário de cadastro;
+partition "Interface do Usuário" {
+    :Usuário acessa tela de\ncadastro de medicamento;
+    :Sistema exibe formulário\ncom campos obrigatórios;
+    note right
+        Campos: Nome, Dosagem,
+        Frequência, Horários
+    end note
+}
 
-:Sistema exibe campos do formulário\n(nome, dosagem, frequência, horário);
-
-:Usuário preenche informações;
-
-:Sistema valida campos obrigatórios;
-
-if (Campos válidos?) then (não)
-  :Sistema exibe mensagem de erro;
-  :Usuário preenche informações;
-  stop
-else (sim)
-  :Sistema cria objeto Medication;
-  :Sistema salva medicamento no banco de dados;
-  
-  partition Agendamento de Notificações {
-    :Sistema parse do horário\n(ex: "8h, 14h, 20h");
+partition "Validação" {
+    :Usuário preenche informações\ndo medicamento;
+    :Sistema valida campos obrigatórios;
     
-    while (Para cada horário) is (há mais horários)
-      :Sistema calcula delay até o horário;
-      :Sistema cria PeriodicWorkRequest;
-      :Sistema agenda notificação\ncom WorkManager;
+    if (Todos os campos válidos?) then (não)
+        :Sistema exibe mensagens\nde erro específicas;
+        :Usuário corrige informações;
+        :Sistema valida campos obrigatórios;
+    endif
+}
+
+partition "Persistência" {
+    :Sistema cria objeto Medication\ncom dados informados;
+    :Sistema define status inicial\ncomo PENDENTE;
+    :Sistema salva medicamento\nno banco de dados;
+    
+    if (Medicamento salvo com sucesso?) then (não)
+        :Sistema exibe mensagem\nde erro ao salvar;
+        stop
+    endif
+}
+
+partition "Agendamento de Notificações" {
+    :Sistema faz parse do campo\nschedule (ex: "8h, 14h, 20h");
+    
+    :Sistema extrai lista\nde horários;
+    
+    while (Há mais horários para processar?) is (sim)
+        :Sistema calcula delay\ndo horário atual até o horário\nda primeira dose;
+        
+        :Sistema cria PeriodicWorkRequest\ncom frequência diária;
+        
+        :Sistema agenda notificação\nusando WorkManager;
+        
+        note right
+            WorkManager garante
+            que a notificação será
+            exibida mesmo se o app
+            estiver em background
+        end note
     endwhile (não há mais horários)
-  }
-  
-  :Sistema retorna à tela de lista;
-  stop
-endif
+    
+    :Sistema registra todas as\nnotificações agendadas;
+}
+
+partition "Feedback ao Usuário" {
+    :Sistema atualiza lista\nde medicamentos;
+    :Sistema exibe mensagem\nde sucesso;
+    :Sistema retorna à tela\nde listagem;
+    stop
+}
 
 @enduml

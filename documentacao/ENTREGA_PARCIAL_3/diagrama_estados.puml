@@ -1,34 +1,87 @@
 @startuml Diagrama_Estados_Medicamento
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
 
-[*] --> Pendente : Cadastrar
+skinparam state {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
+    FontStyle bold
+}
+
+skinparam arrow {
+    Color #424242
+    Thickness 2
+}
+
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+    FontSize 10
+}
+
+[*] --> Pendente : Cadastrar medicamento
 
 state Pendente {
-  : Medicamento cadastrado
-  : Aguardando horário
+    state "Medicamento cadastrado" as P1
+    state "Aguardando horário\nda primeira dose" as P2
+    
+    P1 --> P2 : Horário agendado
 }
 
 state Atrasado {
-  : Horário passou
-  : Medicamento não tomado
+    state "Horário da dose passou" as A1
+    state "Medicamento não tomado" as A2
+    state "Sistema detecta atraso" as A3
+    
+    A1 --> A2 : Horário passou
+    A2 --> A3 : Sistema verifica status
 }
 
 state Tomado {
-  : Medicamento administrado
-  : Registrado data/hora
+    state "Usuário marca como tomado" as T1
+    state "Registrado data/hora" as T2
+    state "Status finalizado" as T3
+    
+    T1 --> T2 : Confirmação
+    T2 --> T3 : Persistido no BD
 }
 
-Pendente --> Tomado : Marcar como Tomado
-Atrasado --> Tomado : Marcar como Tomado
-Pendente --> Atrasado : Horário passou\n(sistema)
+Pendente --> Tomado : marcarComoTomado()\n[usuário confirma]
+Pendente --> Atrasado : verificarHorario()\n[horário passou && status = PENDENTE]
+Atrasado --> Tomado : marcarComoTomado()\n[usuário confirma]
 
 note right of Pendente
-  Estado inicial quando
-  medicamento é cadastrado
+    <b>Estado Inicial</b>
+    Quando o medicamento é
+    cadastrado, ele inicia
+    no estado PENDENTE.
+    O sistema aguarda o
+    horário programado.
+end note
+
+note right of Atrasado
+    <b>Estado de Atraso</b>
+    O sistema verifica
+    periodicamente se o
+    horário passou sem
+    o medicamento ser tomado.
+    Pode ser marcado como
+    tomado mesmo estando atrasado.
 end note
 
 note right of Tomado
-  Estado final quando
-  usuário marca como tomado
+    <b>Estado Final</b>
+    Quando o usuário marca
+    como tomado, o sistema
+    registra a data e hora
+    exata da confirmação.
+    Este é um estado terminal
+    para aquela dose específica.
 end note
 
 @enduml

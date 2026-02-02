@@ -1,94 +1,212 @@
 @startuml Diagrama_Classes_MediTrack
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam monochrome false
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam linetype ortho
 
-skinparam classAttributeIconSize 0
-
-class Medication {
-  - id: Int
-  - name: String
-  - dosage: String
-  - frequency: String
-  - schedule: String
-  - status: String
-  + isValid(): Boolean
+skinparam class {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeFontStyle normal
+    MethodFontSize 10
+    MethodFontStyle italic
 }
 
-interface MedicationDao {
-  + insert(medication: Medication): void
-  + update(medication: Medication): void
-  + getAll(): Flow<List<Medication>>
-  + getById(id: Int): Medication?
+skinparam interface {
+    BackgroundColor #F1F8E9
+    BorderColor #558B2F
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeFontStyle normal
+    MethodFontSize 10
+    MethodFontStyle italic
 }
 
-interface MedicationRepository {
-  + insertMedication(medication: Medication): void
-  + updateMedication(medication: Medication): void
-  + getAllMedications(): Flow<List<Medication>>
-  + getMedicationById(id: Int): Medication?
+skinparam abstract {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+    FontSize 11
+    FontStyle bold
+    AttributeFontSize 10
+    AttributeFontStyle normal
+    MethodFontSize 10
+    MethodFontStyle italic
 }
 
-class MedicationRepositoryImpl {
-  - medicationDao: MedicationDao
-  + insertMedication(medication: Medication): void
-  + updateMedication(medication: Medication): void
-  + getAllMedications(): Flow<List<Medication>>
-  + getMedicationById(id: Int): Medication?
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #616161
 }
 
-abstract class MedicationDatabase {
-  + medicationDao(): MedicationDao
+skinparam arrow {
+    Color #424242
+    Thickness 2
 }
 
-class MedicationViewModel {
-  - medicationRepository: MedicationRepository
-  + allMedications: Flow<List<Medication>>
-  + insertMedication(medication: Medication): void
-  + updateMedication(medication: Medication): void
-  + markMedicationAsTaken(medication: Medication): void
-  + getMedicationById(id: Int): Flow<Medication?>
+package "Entidades" {
+    class Medication {
+        - id: Long
+        - name: String
+        - dosage: String
+        - frequency: String
+        - schedule: String
+        - status: MedicationStatus
+        - createdAt: LocalDateTime
+        - updatedAt: LocalDateTime
+        --
+        + isValid(): Boolean
+        + markAsTaken(): void
+        + markAsDelayed(): void
+    }
+    
+    enum MedicationStatus {
+        PENDENTE
+        TOMADO
+        ATRASADO
+    }
 }
 
-class NotificationScheduler {
-  - context: Context
-  + scheduleNotification(medication: Medication): void
+package "Persistência" {
+    interface MedicationDao {
+        + insert(medication: Medication): Long
+        + update(medication: Medication): void
+        + delete(id: Long): void
+        + getAll(): Flow<List<Medication>>
+        + getById(id: Long): Flow<Medication?>
+        + getByStatus(status: MedicationStatus): Flow<List<Medication>>
+    }
+    
+    abstract class MedicationDatabase {
+        + medicationDao(): MedicationDao
+        {abstract}
+    }
+    
+    class AppDatabase {
+        - INSTANCE: AppDatabase
+        + medicationDao(): MedicationDao
+        + getInstance(context: Context): AppDatabase
+    }
 }
 
-class NotificationWorker {
-  - applicationContext: Context
-  - workerParams: WorkerParameters
-  + doWork(): Result
-  - showNotification(medicationName: String, medicationDosage: String): void
+package "Repositório" {
+    interface MedicationRepository {
+        + insertMedication(medication: Medication): Flow<Long>
+        + updateMedication(medication: Medication): Flow<Unit>
+        + deleteMedication(id: Long): Flow<Unit>
+        + getAllMedications(): Flow<List<Medication>>
+        + getMedicationById(id: Long): Flow<Medication?>
+        + markMedicationAsTaken(id: Long): Flow<Unit>
+    }
+    
+    class MedicationRepositoryImpl {
+        - medicationDao: MedicationDao
+        --
+        + insertMedication(medication: Medication): Flow<Long>
+        + updateMedication(medication: Medication): Flow<Unit>
+        + deleteMedication(id: Long): Flow<Unit>
+        + getAllMedications(): Flow<List<Medication>>
+        + getMedicationById(id: Long): Flow<Medication?>
+        + markMedicationAsTaken(id: Long): Flow<Unit>
+    }
 }
 
-class PdfGenerator {
-  - context: Context
-  + generateMedicationHistoryPdf(medications: List<Medication>): File?
+package "Apresentação" {
+    class MedicationViewModel {
+        - medicationRepository: MedicationRepository
+        - _allMedications: MutableStateFlow<List<Medication>>
+        - _selectedMedication: MutableStateFlow<Medication?>
+        --
+        + allMedications: StateFlow<List<Medication>>
+        + selectedMedication: StateFlow<Medication?>
+        + insertMedication(medication: Medication): Job
+        + updateMedication(medication: Medication): Job
+        + deleteMedication(id: Long): Job
+        + markMedicationAsTaken(id: Long): Job
+        + getMedicationById(id: Long): Job
+    }
 }
 
-interface AppContainer {
-  + medicationDatabase: MedicationDatabase
-  + medicationRepository: MedicationRepository
+package "Notificações" {
+    class NotificationScheduler {
+        - context: Context
+        - workManager: WorkManager
+        --
+        + scheduleNotification(medication: Medication): void
+        + cancelNotification(medicationId: Long): void
+        + rescheduleAllNotifications(): void
+        - createWorkRequest(medication: Medication, time: LocalTime): PeriodicWorkRequest
+    }
+    
+    class NotificationWorker {
+        - applicationContext: Context
+        - workerParams: WorkerParameters
+        --
+        + doWork(): Result
+        - showNotification(medicationName: String, medicationDosage: String): void
+        - createNotificationChannel(): void
+    }
 }
 
-class AppDataContainer {
-  - context: Context
-  + medicationDatabase: MedicationDatabase
-  + medicationRepository: MedicationRepository
+package "Relatórios" {
+    class PdfGenerator {
+        - context: Context
+        - document: Document
+        --
+        + generateMedicationHistoryPdf(medications: List<Medication>): File?
+        + generateMedicationReport(medication: Medication): File?
+        - createDocumentHeader(): void
+        - createMedicationTable(medications: List<Medication>): void
+        - savePdfFile(document: Document): File?
+    }
 }
 
-' Relacionamentos
-MedicationRepositoryImpl ..|> MedicationRepository : implements
-MedicationRepositoryImpl *-- MedicationDao : uses
+package "Injeção de Dependências" {
+    interface AppContainer {
+        + medicationDatabase: MedicationDatabase
+        + medicationRepository: MedicationRepository
+    }
+    
+    class AppDataContainer {
+        - context: Context
+        - _medicationDatabase: MedicationDatabase
+        - _medicationRepository: MedicationRepository
+        --
+        + medicationDatabase: MedicationDatabase
+        + medicationRepository: MedicationRepository
+    }
+}
 
+' Relacionamentos - Entidades
+Medication --> MedicationStatus : uses
+
+' Relacionamentos - Persistência
+AppDatabase --|> MedicationDatabase : extends
 MedicationDatabase "1" *-- "0..*" Medication : stores
 MedicationDatabase o-- MedicationDao : provides
 
+' Relacionamentos - Repositório
+MedicationRepositoryImpl ..|> MedicationRepository : implements
+MedicationRepositoryImpl *-- MedicationDao : uses
+
+' Relacionamentos - Apresentação
 MedicationViewModel --> MedicationRepository : uses
 
-NotificationScheduler ..> Medication : depends on
+' Relacionamentos - Notificações
+NotificationScheduler --> Medication : uses
+NotificationScheduler --> NotificationWorker : creates
 NotificationWorker ..> Medication : uses
 
-PdfGenerator ..> Medication : uses
+' Relacionamentos - Relatórios
+PdfGenerator --> Medication : uses
 
+' Relacionamentos - Injeção de Dependências
 AppDataContainer ..|> AppContainer : implements
 AppDataContainer *-- MedicationDatabase : creates
 AppDataContainer *-- MedicationRepositoryImpl : creates
