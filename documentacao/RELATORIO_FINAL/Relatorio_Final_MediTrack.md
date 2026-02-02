@@ -1,7 +1,8 @@
 # RELATÓRIO FINAL
 ## MediTrack - Sistema de Gerenciamento de Medicamentos
 
-**Projeto Final da Disciplina:** Análise de Sistemas de Informação  
+**Projeto Final da Disciplina:** Análise de Sistemas de Informação
+**Alunos:** Sophia Lannah, João Marcos e Victor Gabriel
 **Professor:** Otávio Calaça Xavier  
 **Instituição:** Instituto Federal de Educação, Ciência e Tecnologia - Goiás  
 **Campus:** Goiânia  
