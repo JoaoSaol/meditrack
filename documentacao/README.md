@@ -54,6 +54,7 @@ Os diagramas estão em formato PlantUML (.puml). Para visualizar:
 ## Informações do Projeto
 
 - **Disciplina:** Análise de Sistemas de Informação
+- **Alunos:** Sophia Lannah, João Marcos e Victor Gabriel
 - **Professor:** Otávio Calaça Xavier
 - **Instituição:** IFG - Campus Goiânia
 - **Data:** 09/12/2025
