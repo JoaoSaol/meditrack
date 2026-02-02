@@ -2,7 +2,8 @@
 ## Definição do Problema e Elicitação de Requisitos
 
 **Projeto:** MediTrack - Sistema de Gerenciamento de Medicamentos  
-**Disciplina:** Análise de Sistemas de Informação  
+**Disciplina:** Análise de Sistemas de Informação
+**Alunos:** Sophia, João Marcos e Victor 
 **Professor:** Otávio Calaça Xavier  
 **Data:** 09/12/2025
 
