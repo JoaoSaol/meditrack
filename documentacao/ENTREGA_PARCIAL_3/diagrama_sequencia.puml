@@ -1,0 +1,52 @@
+@startuml Diagrama_Sequencia_Marcar_Como_Tomado
+
+actor Usuário
+participant "MedicationDetailScreen" as Screen
+participant "MedicationViewModel" as ViewModel
+participant "MedicationRepository" as Repository
+participant "MedicationDao" as Dao
+database "MedicationDatabase" as Database
+
+Usuário -> Screen: Clica em "Marcar como Tomado"
+activate Screen
+
+Screen -> ViewModel: markMedicationAsTaken(medication)
+activate ViewModel
+
+ViewModel -> ViewModel: Cria cópia com status = "Tomado"
+activate ViewModel
+
+ViewModel -> Repository: updateMedication(medication)
+activate Repository
+
+Repository -> Dao: update(medication)
+activate Dao
+
+Dao -> Database: UPDATE medications SET status = 'Tomado'
+activate Database
+
+Database --> Dao: Atualização persistida
+deactivate Database
+
+Dao --> Repository: Sucesso
+deactivate Dao
+
+Repository --> ViewModel: Sucesso
+deactivate Repository
+
+note right of ViewModel
+  O Flow reativo notifica
+  automaticamente os
+  observadores
+end note
+
+ViewModel --> Screen: Estado atualizado
+deactivate ViewModel
+
+Screen -> Screen: Atualiza interface
+Screen -> Screen: Remove botão "Marcar como Tomado"
+
+Screen --> Usuário: Interface atualizada
+deactivate Screen
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml Diagrama_Estados_Medicamento
+
+[*] --> Pendente : Cadastrar
+
+state Pendente {
+  : Medicamento cadastrado
+  : Aguardando horário
+}
+
+state Atrasado {
+  : Horário passou
+  : Medicamento não tomado
+}
+
+state Tomado {
+  : Medicamento administrado
+  : Registrado data/hora
+}
+
+Pendente --> Tomado : Marcar como Tomado
+Atrasado --> Tomado : Marcar como Tomado
+Pendente --> Atrasado : Horário passou\n(sistema)
+
+note right of Pendente
+  Estado inicial quando
+  medicamento é cadastrado
+end note
+
+note right of Tomado
+  Estado final quando
+  usuário marca como tomado
+end note
+
+@enduml
