@@ -911,6 +911,13 @@ rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" #FFF9C4 {
 @enduml
 \end{lstlisting}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/diagrama_casos_uso.svg}
+    \caption{Diagrama de Casos de Uso do Sistema MediTrack}
+    \label{fig:diagrama_casos_uso}
+\end{figure}
+
 \subsubsection{Resumo dos Casos de Uso e Relacionamentos}
 
 \begin{itemize}
@@ -1308,6 +1315,13 @@ AppDataContainer *-- MedicationRepositoryImpl : creates
 @enduml
 \end{lstlisting}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/diagrama_classes.svg}
+    \caption{Diagrama de Classes do Sistema MediTrack}
+    \label{fig:diagrama_classes}
+\end{figure}
+
 \subsection{Diagrama de Atividades}
 
 \subsubsection{Processo: Cadastrar Medicamento e Agendar Notificação}
@@ -1433,6 +1447,13 @@ partition "Feedback ao Usuário" {
 @enduml
 \end{lstlisting}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/diagrama_atividades.svg}
+    \caption{Diagrama de Atividades - Cadastrar Medicamento e Agendar Notificação}
+    \label{fig:diagrama_atividades}
+\end{figure}
+
 \subsection{Diagrama de Sequência}
 
 \subsubsection{Processo: Marcar Medicamento como Tomado}
@@ -1520,35 +1541,31 @@ participant "MedicationDao" as Dao #LightPink
 database "Room Database" as Database #LightGreen
 
 Usuario -> Screen: 1. Clica no botão\n"Marcar como Tomado"
-activate Screen #FFE0E0
+activate Screen
 
 Screen -> Screen: 2. Valida se medicamento\nnão está já marcado
-activate Screen #FFE0E0
 
 alt Medicamento já está marcado
     Screen --> Usuario: Exibe mensagem:\n"Medicamento já foi tomado"
-    deactivate Screen
+    
 else Medicamento não está marcado
     Screen -> ViewModel: 3. markMedicationAsTaken(\nmedicationId: Long)
-    activate ViewModel #E0FFE0
+    activate ViewModel
     
     ViewModel -> ViewModel: 4. Cria cópia do medicamento\ncom status = TOMADO
-    activate ViewModel #E0FFE0
     
     ViewModel -> ViewModel: 5. Atualiza updatedAt\ncom timestamp atual
-    activate ViewModel #E0FFE0
     
     ViewModel -> Repository: 6. updateMedication(\nmedication: Medication)
-    activate Repository #FFFFE0
+    activate Repository
     
     Repository -> Repository: 7. Valida dados\ndo medicamento
-    activate Repository #FFFFE0
     
     Repository -> Dao: 8. update(medication: Medication)
-    activate Dao #FFE0FF
+    activate Dao
     
     Dao -> Database: 9. UPDATE medications\nSET status = 'TOMADO',\nupdatedAt = NOW()\nWHERE id = ?
-    activate Database #E0FFE0
+    activate Database
     
     Database --> Dao: 10. Retorna número de\nlinhas afetadas
     deactivate Database
@@ -1568,22 +1585,17 @@ else Medicamento não está marcado
         end note
         
         ViewModel -> ViewModel: 13. Atualiza StateFlow\nallMedications
-        activate ViewModel #E0FFE0
         
         ViewModel --> Screen: 14. Estado atualizado\nvia StateFlow
         deactivate ViewModel
         
         Screen -> Screen: 15. Atualiza UI com\nnovo estado
-        activate Screen #FFE0E0
         
         Screen -> Screen: 16. Remove botão\n"Marcar como Tomado"
-        activate Screen #FFE0E0
         
         Screen -> Screen: 17. Exibe indicador\n"Medicamento Tomado"
-        activate Screen #FFE0E0
         
         Screen --> Usuario: 18. Interface atualizada\ncom feedback visual
-        deactivate Screen
         
     else Erro na atualização
         Dao --> Repository: 11. Erro (rows = 0)
@@ -1596,12 +1608,22 @@ else Medicamento não está marcado
         deactivate ViewModel
         
         Screen --> Usuario: 14. Exibe mensagem de erro
-        deactivate Screen
-    endif
-endif
+        
+    end
+    
+end
+
+deactivate Screen
 
 @enduml
 \end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/diagrama_sequencia.svg}
+    \caption{Diagrama de Sequência - Marcar Medicamento como Tomado}
+    \label{fig:diagrama_sequencia}
+\end{figure}
 
 \subsection{Diagrama de Estados}
 
@@ -1714,6 +1736,13 @@ end note
 
 @enduml
 \end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{assets/diagrama_estados.svg}
+    \caption{Diagrama de Estados do Medicamento}
+    \label{fig:diagrama_estados}
+\end{figure}
 
 \subsection{Aplicação de Conceitos OOP}
 
