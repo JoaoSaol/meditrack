@@ -5,6 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[portuguese]{babel}
 \usepackage{graphicx}
+\usepackage{adjustbox}
 \usepackage{float}
 \usepackage{indentfirst}
 \usepackage{setspace}
@@ -13,6 +14,7 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{textcomp}
+\usepackage{mdframed}
 \usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -25,12 +27,13 @@
     language=,
     basicstyle=\ttfamily\tiny,
     breaklines=true,
-    frame=single,
+    breakatwhitespace=true,
+    frame=none,
     backgroundcolor=\color{gray!10},
     showstringspaces=false,
     tabsize=2,
-    xleftmargin=0.5cm,
-    xrightmargin=0.5cm,
+    xleftmargin=0.3cm,
+    xrightmargin=0.3cm,
     extendedchars=true,
     inputencoding=utf8,
     escapeinside={(*@}{@*)},
@@ -46,6 +49,21 @@
              {ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
              {ç}{{\c c}}1 {Ç}{{\c C}}1
 }
+
+% Ambiente para códigos UML que permite quebra de página
+\mdfdefinestyle{umlcode}{
+    leftmargin=0.3cm,
+    rightmargin=0.3cm,
+    innerleftmargin=0.3cm,
+    innerrightmargin=0.3cm,
+    backgroundcolor=gray!10,
+    linecolor=black,
+    linewidth=1pt,
+    skipabove=5pt,
+    skipbelow=5pt
+}
+
+\newmdenv[style=umlcode]{umlcodebox}
 
 % Espaçamento ABNT
 \onehalfspacing
@@ -90,9 +108,9 @@
 \noindent
 \textbf{Disciplina:} Análise de Sistemas de Informação \\
 \textbf{Professor:} Otávio Calaça Xavier \\
-\textbf{Alunos:} [Nomes dos integrantes da dupla] \\
+\textbf{Alunos:} João Marcos, Sophia Lannah, Victor Gabriel \\
 \textbf{Tema:} MediTrack - Sistema de Gerenciamento de Medicamentos \\
-\textbf{Data:} 09/12/2025
+\textbf{Data:} 03/02/2026
 
 \newpage
 
@@ -174,7 +192,7 @@ A entrevista foi conduzida com um profissional de saúde experiente, que atende 
     \item Importância de testar a usabilidade com idosos desde o início do desenvolvimento
 \end{itemize}
 
-\textbf{Evidência:} Transcrição completa da entrevista disponível em [Apêndice A](#apendice-a)
+\textbf{Evidência:} Transcrição completa da entrevista disponível no Apêndice A (página \pageref{apendice-a})
 
 \textbf{2.1.2. Questionário Online}
 
@@ -804,6 +822,7 @@ Este documento apresenta a modelagem dos casos de uso do sistema MediTrack, desc
 
 O sistema MediTrack possui 8 casos de uso principais, envolvendo o ator Usuário e o Sistema (WorkManager) para notificações automáticas. O diagrama mostra os relacionamentos entre os casos de uso, incluindo dependências (include) e extensões (extend).
 
+\begin{umlcodebox}
 \begin{lstlisting}
 @startuml Diagrama_Casos_Uso_MediTrack
 !theme plain
@@ -910,10 +929,11 @@ rectangle "MediTrack - Sistema de Gerenciamento de Medicamentos" #FFF9C4 {
 
 @enduml
 \end{lstlisting}
+\end{umlcodebox}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{assets/diagrama_casos_uso.svg}
+    \adjustbox{max width=\textwidth,max height=0.8\textheight,center}{\includegraphics{assets/diagrama_casos_uso.png}}
     \caption{Diagrama de Casos de Uso do Sistema MediTrack}
     \label{fig:diagrama_casos_uso}
 \end{figure}
@@ -1098,6 +1118,7 @@ O diagrama de classes do sistema MediTrack apresenta os seguintes relacionamento
 
 \textbf{Código PlantUML do Diagrama de Classes:}
 
+\begin{umlcodebox}
 \begin{lstlisting}
 @startuml Diagrama_Classes_MediTrack
 !theme plain
@@ -1314,10 +1335,11 @@ AppDataContainer *-- MedicationRepositoryImpl : creates
 
 @enduml
 \end{lstlisting}
+\end{umlcodebox}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{assets/diagrama_classes.svg}
+    \adjustbox{max width=\textwidth,max height=0.8\textheight,center}{\includegraphics{assets/diagrama_classes.png}}
     \caption{Diagrama de Classes do Sistema MediTrack}
     \label{fig:diagrama_classes}
 \end{figure}
@@ -1353,6 +1375,7 @@ Este processo envolve desde o preenchimento do formulário pelo usuário até o 
 
 \textbf{Código PlantUML do Diagrama de Atividades:}
 
+\begin{umlcodebox}
 \begin{lstlisting}
 @startuml Diagrama_Atividades_Cadastrar_Medicamento
 !theme plain
@@ -1446,10 +1469,11 @@ partition "Feedback ao Usuário" {
 
 @enduml
 \end{lstlisting}
+\end{umlcodebox}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{assets/diagrama_atividades.svg}
+    \adjustbox{max width=\textwidth,max height=0.8\textheight,center}{\includegraphics{assets/diagrama_atividades.png}}
     \caption{Diagrama de Atividades - Cadastrar Medicamento e Agendar Notificação}
     \label{fig:diagrama_atividades}
 \end{figure}
@@ -1490,6 +1514,7 @@ Este processo mostra a sequência de chamadas entre os componentes do sistema qu
 
 \textbf{Código PlantUML do Diagrama de Sequência:}
 
+\begin{umlcodebox}
 \begin{lstlisting}
 @startuml Diagrama_Sequencia_Marcar_Como_Tomado
 !theme plain
@@ -1617,10 +1642,11 @@ deactivate Screen
 
 @enduml
 \end{lstlisting}
+\end{umlcodebox}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{assets/diagrama_sequencia.svg}
+    \adjustbox{max width=\textwidth,max height=0.8\textheight,center}{\includegraphics{assets/diagrama_sequencia.png}}
     \caption{Diagrama de Sequência - Marcar Medicamento como Tomado}
     \label{fig:diagrama_sequencia}
 \end{figure}
@@ -1647,6 +1673,7 @@ deactivate Screen
 
 \textbf{Código PlantUML do Diagrama de Estados:}
 
+\begin{umlcodebox}
 \begin{lstlisting}
 @startuml Diagrama_Estados_Medicamento
 !theme plain
@@ -1736,10 +1763,11 @@ end note
 
 @enduml
 \end{lstlisting}
+\end{umlcodebox}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{assets/diagrama_estados.svg}
+    \adjustbox{max width=\textwidth,max height=0.8\textheight,center}{\includegraphics{assets/diagrama_estados.png}}
     \caption{Diagrama de Estados do Medicamento}
     \label{fig:diagrama_estados}
 \end{figure}
@@ -1792,68 +1820,6 @@ end note
 % ENTREGA PARCIAL 4
 % ================================
 \section{GERENCIAMENTO E RASTREABILIDADE DOS REQUISITOS}
-
-\subsection{Ferramenta de Gerenciamento Escolhida}
-
-\subsubsection{Jira}
-
-Foi escolhida a ferramenta \textbf{Jira} para o gerenciamento do projeto devido às seguintes vantagens:
-
-\begin{itemize}
-    \item \textbf{Profissional:} Ferramenta amplamente utilizada na indústria de software
-    \item \textbf{Rastreabilidade:} Permite rastreamento completo de requisitos através de issues, epics e links
-    \item \textbf{Hierárquica:} Suporta estrutura hierárquica (Epic $\rightarrow$ Story $\rightarrow$ Task $\rightarrow$ Sub-task)
-    \item \textbf{Relacionamentos:} Possibilita criação de relacionamentos entre issues (relates to, blocks, etc.)
-    \item \textbf{Relatórios:} Oferece relatórios e métricas de rastreabilidade
-    \item \textbf{Labels e Componentes:} Permite categorização através de labels e componentes
-    \item \textbf{Importação CSV:} Suporta importação em massa via arquivo CSV
-\end{itemize}
-
-\subsubsection{Link do Projeto}
-
-\textbf{Link do Projeto Jira:} [AQUI DEVE SER INSERIDO O LINK DO PROJETO JIRA]
-
-Exemplo de estrutura:
-\begin{itemize}
-    \item \texttt{https://seu-workspace.atlassian.net/jira/software/projects/MED/board}
-    \item \texttt{https://seu-workspace.atlassian.net/browse/MED}
-\end{itemize}
-
-\subsection{Estrutura do Projeto no Jira}
-
-\subsubsection{Organização do Projeto}
-
-O projeto foi organizado com as seguintes \textbf{Issue Types}:
-
-\begin{enumerate}
-    \item \textbf{Epics (Épicos):}
-    \begin{itemize}
-        \item Entrega Parcial 1: Definição do Problema e Elicitação
-        \item Entrega Parcial 2: Casos de Uso
-        \item Entrega Parcial 3: Diagramas UML
-        \item Entrega Parcial 4: Gerenciamento e Rastreabilidade
-        \item Entrega Final: Relatório e Apresentação
-    \end{itemize}
-    
-    \item \textbf{Stories (Histórias):}
-    \begin{itemize}
-        \item Requisitos funcionais (RF01 a RF10)
-    \end{itemize}
-    
-    \item \textbf{Tasks (Tarefas):}
-    \begin{itemize}
-        \item Requisitos não funcionais (RNF01 a RNF08)
-        \item Casos de Uso (CU01 a CU08)
-        \item Diagramas UML
-    \end{itemize}
-    
-    \item \textbf{Status:}
-    \begin{itemize}
-        \item To Do
-        \item In Progress
-        \item Done
-    \end{itemize}
-\end{enumerate}
 
 \subsection{Rastreabilidade dos Requisitos}
 
@@ -1923,155 +1889,6 @@ RNF08 & Notificações & Diagrama de Atividades & WorkManager \\
 \hline
 \end{longtable}
 
-\subsubsection{Cadastro e Gerenciamento dos Requisitos}
-
-Os requisitos foram cadastrados e gerenciados no Jira através das seguintes etapas:
-
-\textbf{1. Importação Inicial:}
-\begin{itemize}
-    \item Todos os requisitos foram importados em massa através de um arquivo CSV (\texttt{jira\_import.csv})
-    \item O arquivo CSV continha 41 issues no total, incluindo:
-    \begin{itemize}
-        \item 10 Requisitos Funcionais (RF01-RF10) como Stories
-        \item 8 Requisitos Não Funcionais (RNF01-RNF08) como Tasks
-        \item 8 Casos de Uso (CU01-CU08) como Tasks
-        \item 5 Entregas Parciais como Epics
-        \item 5 Diagramas UML como Tasks
-        \item 5 Issues adicionais de gerenciamento
-    \end{itemize}
-    \item Cada issue foi configurada com Summary, Issue Type, Description, Priority, Status e Labels apropriados
-\end{itemize}
-
-\textbf{2. Estruturação Hierárquica:}
-\begin{itemize}
-    \item \textbf{Epics:} Organizados por Entregas Parciais, servindo como containers principais
-    \item \textbf{Stories:} Requisitos Funcionais vinculados aos seus respectivos Epics
-    \item \textbf{Tasks:} Requisitos Não Funcionais, Casos de Uso e Diagramas vinculados aos Epics correspondentes
-    \item \textbf{Sub-tasks:} Criadas para rastrear o progresso de cada artefato relacionado
-\end{itemize}
-
-\textbf{3. Organização por Labels:}
-\begin{itemize}
-    \item Labels utilizados para categorização: ``Requisito Funcional'', ``Requisito Não Funcional'', ``Caso de Uso'', ``Diagrama UML'', ``Entrega Parcial'', ``Alta Prioridade'', ``Média Prioridade'', etc.
-    \item Labels facilitam filtragem e visualização de issues relacionadas
-\end{itemize}
-
-\textbf{4. Descrições Detalhadas:}
-\begin{itemize}
-    \item Cada issue contém descrição completa incluindo:
-    \begin{itemize}
-        \item Tipo de requisito (Funcional ou Não Funcional)
-        \item Prioridade (Alta, Média ou Baixa)
-        \item Fonte da elicitação (Entrevista, Questionário, Observação)
-        \item Descrição detalhada do requisito
-        \item Lista de artefatos relacionados (Casos de Uso, Diagramas, Implementação)
-    \end{itemize}
-\end{itemize}
-
-\subsubsection{Rastreabilidade no Jira}
-
-A rastreabilidade foi estabelecida e mantida no Jira através de:
-
-\begin{enumerate}
-    \item \textbf{Issue Links:} Cada issue de requisito possui links para:
-    \begin{itemize}
-        \item Issues de casos de uso relacionados (usando ``Relates to'')
-        \item Issues de diagramas UML relacionados
-        \item Issues de implementação relacionadas
-    \end{itemize}
-    
-    \item \textbf{Epic Links:} Hierarquia organizada através de Epic Links:
-    \begin{itemize}
-        \item Epics representam Entregas Parciais
-        \item Stories representam Requisitos Funcionais vinculados aos Epics
-        \item Tasks representam Requisitos Não Funcionais e outros artefatos vinculados aos Epics
-    \end{itemize}
-    
-    \item \textbf{Description:} Cada issue contém links diretos para:
-    \begin{itemize}
-        \item Documentos de entrega parcial (arquivos Markdown)
-        \item Diagramas UML (arquivos .puml ou imagens)
-        \item Código fonte (quando disponível em repositório Git)
-    \end{itemize}
-    
-    \item \textbf{Sub-tasks:} Permitem rastrear o progresso de cada artefato relacionado ao requisito
-    
-    \item \textbf{Labels:} Categorização e filtragem de issues para facilitar a visualização da rastreabilidade
-\end{enumerate}
-
-\subsection{Planejamento de Entregas}
-
-\subsubsection{Backlog de Tarefas}
-
-O backlog foi organizado seguindo a ordem das entregas parciais:
-
-\textbf{Sprint 1: Elicitação de Requisitos}
-\begin{itemize}
-    \item[$\checkmark$] Escolher sistema a ser modelado
-    \item[$\checkmark$] Aplicar técnicas de elicitação (Entrevista, Questionário, Observação)
-    \item[$\checkmark$] Documentar requisitos funcionais
-    \item[$\checkmark$] Documentar requisitos não funcionais
-    \item[$\checkmark$] Elaborar Entrega Parcial 1
-\end{itemize}
-
-\textbf{Sprint 2: Modelagem de Casos de Uso}
-\begin{itemize}
-    \item[$\checkmark$] Criar casos de uso detalhados
-    \item[$\checkmark$] Elaborar diagrama de casos de uso
-    \item[$\checkmark$] Revisar casos de uso
-    \item[$\checkmark$] Elaborar Entrega Parcial 2
-\end{itemize}
-
-\textbf{Sprint 3: Diagramas UML Estruturais e Comportamentais}
-\begin{itemize}
-    \item[$\checkmark$] Criar diagrama de classes
-    \item[$\checkmark$] Criar diagrama de atividades
-    \item[$\checkmark$] Criar diagrama de sequência
-    \item[$\checkmark$] Criar diagrama de estados
-    \item[$\checkmark$] Elaborar Entrega Parcial 3
-\end{itemize}
-
-\textbf{Sprint 4: Gerenciamento e Rastreabilidade}
-\begin{itemize}
-    \item[$\checkmark$] Configurar ferramenta de gerenciamento (Jira)
-    \item[$\checkmark$] Cadastrar todos os requisitos via importação CSV
-    \item[$\checkmark$] Estabelecer rastreabilidade
-    \item[$\checkmark$] Criar matriz de rastreabilidade
-    \item[$\checkmark$] Elaborar Entrega Parcial 4
-\end{itemize}
-
-\textbf{Sprint 5: Relatório Final}
-\begin{itemize}
-    \item[ ] Consolidar todas as entregas parciais
-    \item[ ] Elaborar relatório final
-    \item[ ] Criar apresentação (slides)
-    \item[ ] Revisar documentação completa
-    \item[ ] Preparar apresentação oral
-\end{itemize}
-
-\subsubsection{Timeline do Projeto}
-
-\begin{longtable}{|p{5cm}|p{4cm}|p{3cm}|}
-\hline
-\textbf{Entrega} & \textbf{Data Limite} & \textbf{Status} \\
-\hline
-\endfirsthead
-\hline
-\textbf{Entrega} & \textbf{Data Limite} & \textbf{Status} \\
-\hline
-\endhead
-Entrega Parcial 1 & [Data] & Concluído \\
-\hline
-Entrega Parcial 2 & [Data] & Concluído \\
-\hline
-Entrega Parcial 3 & [Data] & Concluído \\
-\hline
-Entrega Parcial 4 & [Data] & Concluído \\
-\hline
-Entrega Final & 10/02/2026 & Em andamento \\
-\hline
-\end{longtable}
-
 \subsection{Métricas de Rastreabilidade}
 
 \subsubsection{Cobertura de Rastreabilidade}
@@ -2097,17 +1914,7 @@ Entrega Final & 10/02/2026 & Em andamento \\
 
 \subsection{Conclusão}
 
-O gerenciamento de requisitos através do Jira permitiu:
-
-\begin{enumerate}
-    \item \textbf{Organização:} Todos os requisitos e artefatos estão organizados e acessíveis
-    \item \textbf{Rastreabilidade:} É possível rastrear cada requisito desde sua origem até a implementação
-    \item \textbf{Colaboração:} A dupla pode trabalhar de forma colaborativa e acompanhar o progresso
-    \item \textbf{Controle:} O checklist permite verificar se todos os artefatos foram criados
-    \item \textbf{Histórico:} Comentários e mudanças de status mantêm o histórico do projeto
-\end{enumerate}
-
-A matriz de rastreabilidade garante que todos os requisitos estão conectados aos seus respectivos artefatos, facilitando a validação e a manutenção do sistema.
+A rastreabilidade foi estabelecida conectando cada requisito aos seus artefatos relacionados através da matriz de rastreabilidade, garantindo que todos os requisitos estão conectados aos seus respectivos casos de uso, diagramas UML e implementações, facilitando a validação e a manutenção do sistema.
 
 \newpage
 
@@ -2156,46 +1963,19 @@ Durante o desenvolvimento do projeto, foram enfrentados diversos desafios que co
 \textbf{4. Rastreabilidade:}
 \begin{itemize}
     \item \textbf{Desafio:} Manter consistência entre requisitos, casos de uso, diagramas e implementação, garantindo que todos os requisitos fossem rastreados adequadamente.
-    \item \textbf{Solução:} Uso da ferramenta Jira para gerenciamento e criação de uma matriz de rastreabilidade detalhada permitiu estabelecer conexões claras entre todos os artefatos do projeto.
+    \item \textbf{Solução:} Criação de uma matriz de rastreabilidade detalhada permitiu estabelecer conexões claras entre todos os artefatos do projeto.
 \end{itemize}
 
 \subsubsection{Aprendizados}
 
 O desenvolvimento deste projeto proporcionou aprendizados significativos:
 
-\textbf{1. Importância da Elicitação de Requisitos:}
 \begin{itemize}
     \item A aplicação de múltiplas técnicas de elicitação (entrevista, questionário e observação) forneceu uma visão mais completa e precisa dos requisitos do sistema.
-    \item A participação de profissionais da área de saúde trouxe insights valiosos sobre necessidades reais que não seriam identificadas apenas através de análise teórica.
-    \item A diversificação de fontes permitiu validar e complementar informações obtidas de diferentes perspectivas.
-\end{itemize}
-
-\textbf{2. Valor da Modelagem:}
-\begin{itemize}
-    \item Os diagramas UML facilitaram significativamente a compreensão do sistema, tanto para os desenvolvedores quanto para os stakeholders.
-    \item A modelagem ajudou a identificar inconsistências e lacunas antes da implementação, economizando tempo e recursos.
-    \item A criação de casos de uso detalhados serviu como base sólida para o desenvolvimento futuro do sistema.
-\end{itemize}
-
-\textbf{3. Rastreabilidade Essencial:}
-\begin{itemize}
-    \item A rastreabilidade permitiu validar que todos os requisitos foram atendidos e que nenhum artefato ficou desconectado.
-    \item Facilita futuras manutenções e evoluções do sistema, permitindo identificar rapidamente quais componentes são afetados por mudanças em requisitos.
-    \item A matriz de rastreabilidade serve como documentação viva do projeto, útil para novos membros da equipe e para auditorias.
-\end{itemize}
-
-\textbf{4. Organização e Planejamento:}
-\begin{itemize}
-    \item O uso de ferramenta de gerenciamento (Jira) facilitou o acompanhamento do progresso e a colaboração entre os membros da dupla.
-    \item A organização em sprints permitiu entregas incrementais e validação contínua, evitando acúmulo de trabalho no final.
-    \item A estruturação clara da documentação em entregas parciais facilitou a revisão e o acompanhamento do professor.
-\end{itemize}
-
-\textbf{5. Aplicação Prática dos Conhecimentos:}
-\begin{itemize}
+    \item Os diagramas UML facilitaram significativamente a compreensão do sistema e ajudaram a identificar inconsistências antes da implementação.
+    \item A rastreabilidade permitiu validar que todos os requisitos foram atendidos e facilita futuras manutenções do sistema.
+    \item A organização em entregas parciais permitiu entregas incrementais e validação contínua.
     \item O projeto permitiu aplicar na prática conceitos teóricos aprendidos em sala de aula, consolidando o aprendizado.
-    \item A escolha de um sistema real (MediTrack) tornou o trabalho mais significativo e relevante, aumentando o engajamento.
-    \item A experiência de modelagem completa de um sistema desde a elicitação até a rastreabilidade preparou para projetos futuros na área de desenvolvimento de software.
 \end{itemize}
 
 % ================================
@@ -2214,7 +1994,6 @@ O desenvolvimento deste projeto proporcionou aprendizados significativos:
 \textbf{Ferramentas Utilizadas:}
 \begin{itemize}
     \item \textbf{Modelagem UML:} PlantUML
-    \item \textbf{Gerenciamento:} Jira
     \item \textbf{Documentação:} Markdown, LaTeX
     \item \textbf{Desenvolvimento:} Android Studio, Kotlin, Jetpack Compose
 \end{itemize}
@@ -2226,6 +2005,7 @@ O desenvolvimento deste projeto proporcionou aprendizados significativos:
 \section{APÊNDICES}
 
 \subsection{Apêndice A - Transcrição da Entrevista}
+\label{apendice-a}
 
 \textbf{Data:} 05/12/2025 \\
 \textbf{Horário:} 14h30 às 15h15 \\
@@ -2369,18 +2149,11 @@ Cadastro em Lote & 28 (54\%) & 16 (31\%) & 7 (13\%) & 1 (2\%) \\
 A observação confirmou a necessidade real de uma solução digital para controle de medicamentos. Os pacientes demonstraram abertura para tecnologia, desde que a interface seja simples e intuitiva. O aspecto de lembrete automático foi identificado como o diferencial mais valorizado.
 
 
-\subsection{Apêndice D- Link do Projeto Jira}
-
-\textbf{Link do Projeto Jira:} [AQUI DEVE SER INSERIDO O LINK DO PROJETO JIRA DO PROJETO]
-
-\textbf{Instruções de importação:} Ver guia completo em \texttt{documentacao/GUIA\_IMPORTACAO\_JIRA.md} \\
-\textbf{Arquivo CSV:} \texttt{documentacao/jira\_import.csv} contém todas as 41 issues do projeto
-
 \vspace{2cm}
 
 \begin{center}
-\textbf{Documento elaborado por:} [Nomes dos integrantes da dupla] \\
-\textbf{Data de conclusão:} [Data]
+\textbf{Documento elaborado por:} João Marcos, Sophia Lannah, Victor Gabriel \\
+\textbf{Data de conclusão:} 03/02/2026
 \end{center}
 
 \end{document}
